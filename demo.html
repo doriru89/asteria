@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="navy">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,26 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#E9E5DC; --bg2:#DCD6C9; --ink:#182238; --muted:#4F5A73; --faint:#8791A5;
-  --gold:#8C6A14; --gold-soft:rgba(140,106,20,.14);
-  --blue:#1F3F73; --blue-soft:rgba(31,63,115,.10);
-  --cyan:#176A62; --cyan-soft:rgba(23,106,98,.13);
-  --rose:#A33A45; --rose-soft:rgba(163,58,69,.11);
-  --glass:rgba(250,248,243,.78); --glass-edge:rgba(24,34,56,.10); --glass-hi:rgba(255,255,255,.9);
-  --line:rgba(24,34,56,.12); --paper:#FBF9F4; --star:#2B3A5C; --shadow:0 10px 30px rgba(24,34,56,.10);
+  /* parchment: the Chronicle's scroll */
+  --bg:#f0e6c8; --bg2:#e4d7b0; --ink:#2b2318; --muted:#4f4230; --faint:#8a7a58;
+  --gold:#9a7b2e; --gold-soft:rgba(154,123,46,.16);
+  --blue:#4a4030; --blue-soft:rgba(74,64,48,.10);
+  --cyan:#2f6b5a; --cyan-soft:rgba(47,107,90,.14);
+  --rose:#b4472a; --rose-soft:rgba(180,71,42,.12);
+  --glass:rgba(247,240,218,.84); --glass-edge:rgba(43,35,24,.12); --glass-hi:rgba(255,252,240,.9);
+  --line:rgba(43,35,24,.14); --paper:#f7f0da; --star:#6d5c3e; --shadow:0 10px 30px rgba(60,45,20,.14);
   --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   --serif:"Fraunces",Georgia,"Times New Roman",serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+@media (prefers-color-scheme: dark){ :root:not([data-theme="parchment"]){
   --bg:#08142B; --bg2:#173A70; --ink:#EDE8DC; --muted:#A9B4CC; --faint:#66759A;
   --gold:#F2D06B; --gold-soft:rgba(242,208,107,.16); --blue:#8FB4EE; --blue-soft:rgba(143,180,238,.12);
   --cyan:#7FD8CE; --cyan-soft:rgba(127,216,206,.14); --rose:#F09AA0; --rose-soft:rgba(240,154,160,.16);
   --glass:rgba(13,28,60,.66); --glass-edge:rgba(160,185,240,.16); --glass-hi:rgba(255,255,255,.06);
   --line:rgba(160,185,240,.14); --paper:#0E1D3E; --star:#F5E7B0; --shadow:0 14px 40px rgba(0,0,0,.42);
 }}
-:root[data-theme="dark"]{
+:root[data-theme="navy"]{
   --bg:#08142B; --bg2:#173A70; --ink:#EDE8DC; --muted:#A9B4CC; --faint:#66759A;
   --gold:#F2D06B; --gold-soft:rgba(242,208,107,.16); --blue:#8FB4EE; --blue-soft:rgba(143,180,238,.12);
   --cyan:#7FD8CE; --cyan-soft:rgba(127,216,206,.14); --rose:#F09AA0; --rose-soft:rgba(240,154,160,.16);
@@ -157,7 +158,7 @@ a{color:var(--blue)}
 .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .btn{border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-size:13px;background:var(--paper)}
 .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-:root[data-theme="dark"] .btn.primary{color:#08142B}
+:root[data-theme="navy"] .btn.primary{color:#08142B}
 .btn:disabled{opacity:.5;cursor:default}
 
 /* stars */
@@ -256,11 +257,12 @@ a{color:var(--blue)}
 <div class="app">
   <header class="top glass">
     <h1><a href="./">ASTERIA</a> · demo</h1>
-    <span class="sub">Three folders · two hooks · three skills. No window of its own: this page only draws the files.</span>
+    <span class="sub">A harness on Claude Code (hooks, skills, a browser) plus the Chronicle as its visual layer. This page only draws the files.</span>
     <span class="sp"></span>
     <span class="pill">gate <b id="gateN">0/1</b></span>
     <span class="pill">pending <b id="poolN">0/3</b></span>
-    <button class="tbtn" id="theme">Light</button>
+    <button class="tbtn" id="theme">Parchment</button>
+    <span class="tbtn"><a href="chronicle.html">Chronicle</a></span>
     <span class="tbtn"><a href="https://github.com/doriru89/asteria">Repo</a></span>
   </header>
 
@@ -405,6 +407,7 @@ function viewIntro(){
     <div><b><i>7</i>AI writes are visible</b>Every AI write to the vault arrives as a changeset the person reviews.</div>
     <div><b><i>8</i>Provenance is legible</b>Every file carries <code>author: me / co / ai</code>. My words and generated words never blur.</div>
   </div>
+  <div class="note"><b>Three words carry the whole thing.</b> A <b>main quest</b> is the line of sessions on one project. A <b>side quest</b> is a capsule cut out of it and run in a fresh session, which merges back. The <b>Chronicle</b> is the record of both, drawn from cards. Asteria itself is thin: hooks, skills and a few capabilities on top of Claude Code, plus this visual layer.</div>
   <div class="note"><b>Why there is no window.</b> Views only read files, so the files are the product. Each step of this page first lights the file being written on the left, then draws it: every screen can answer "which file am I reading".</div>`);
 }
 function viewDiverge(){
@@ -463,7 +466,8 @@ function viewChron(){
   <div class="smode"><button data-m="stars" aria-pressed="${S.mode==='stars'}">Star map</button><button data-m="tl" aria-pressed="${S.mode==='tl'}">Timeline</button></div>
   <div id="chronBody">${S.mode==='stars'?`<div class="starwrap">${stars()}</div>`:timeline()}</div>
   <div class="scard" id="scard"><p style="color:var(--faint)">Click a dot to read its card. Star = a project you opened, dot = a session, dashed line = a side quest, blue ring = a learning session.</p></div>
-  <div class="note"><b>Is this one thing or three?</b> Three Artopath sessions and two branches hang off one star; the picture answers it without an AI summarising anything. If this view disappeared tomorrow, a grep over parent fields would replace it. The truth is the cards.</div>`);
+  <div class="note"><b>Is this one thing or three?</b> Three Artopath sessions and two branches hang off one star; the picture answers it without an AI summarising anything. If this view disappeared tomorrow, a grep over parent fields would replace it. The truth is the cards.</div>
+  <div class="acts"><a class="btn primary" href="chronicle.html" style="text-decoration:none">Open the full Chronicle: the scroll, the Quest Log, the side quests →</a></div>`);
   $$('.smode button').forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;viewChron();});
   $$('#chronBody .pt').forEach(g=>g.onclick=()=>{ const id=g.dataset.s; const map={'c-0919':'chronicle/cards/c-0919-artopath-lineage-graph.md','c-0920':'chronicle/cards/c-0920-artopath-api-draft.md','c-0921':'chronicle/cards/c-0921-artopath-timeline.md','b-0921':'chronicle/briefs/b-0921-cache-strategy.md','c-0922':'chronicle/cards/c-0922-learn-cdn-cache.md','c-0918':'chronicle/cards/c-0918-okr-review.md'}; const p=map[id]; const f=p&&FS[p]; $('#scard').innerHTML= f? `<p><b>${esc(p.split('/').pop())}</b></p>${fmHTML(f.fm)}<div class="doc" style="padding:8px 12px">${f.body}</div>` : `<p style="color:var(--faint)">${esc(id)} is a project, not a session. Its sessions are the dots around it.</p>`; });
 }
@@ -534,7 +538,7 @@ const STEPS=[
 {t:'After approval: files land, author on two axes',n:'input says whose idea; words says who wrote the text. Your sentence touched up by AI is me / ai.',run:async()=>{ if(!FS['vault/notes/artopath-genre-clustering.md']) applyChangeset(); openFile('vault/notes/artopath-genre-clustering.md', `<div class="note"><b>Trust the AI, but keep the line visible.</b> Teal is your input, gold is the AI's. Across the whole vault you can filter on either axis, and the two never blur.</div>`); hint('Four of five writes were your own thoughts. The wiki append was the only fully AI-authored one.'); }},
 {t:'A learn side quest starts from what you already know',n:'Learn kind: it enters the gate (1/1). The capsule opens with the cells already marked known in _index.md, so the explanation does not start from zero.',run:async()=>{ host('codex','learn · CDN cache layers'); say('you','<span class="cmd">@chronicle/briefs/b-0922-learn-cdn-cache.md</span>'); mark('chronicle/briefs/b-0922-learn-cdn-cache.md','read'); await wait(500); say('ai','You already know cache invalidation and you just chose an API-layer LRU. So the only new thing is the hierarchy: edge → regional → origin, and purge versus TTL. Three minutes.'); await wait(500); say('ai','Learning for a verdict: should Artopath put the lineage endpoint behind a CDN? <span class="q">Recommendation: no, not at this traffic</span>.'); openFile('chronicle/briefs/b-0922-learn-cdn-cache.md', `<div class="note"><b>Learn for a decision, not for its own sake.</b> The brief names the verdict the learning serves. When it ends, the spark index gains one known cell and the main line gets one line in Still open resolved.</div>`); hint('Gate 1/1: one escalation per session. The cap is on your attention.'); }},
 {t:'/gate · you call it when you want to converge',n:'Triage 2×2 and the pause protocol, kept as a skill. This step only happens because you invoked it.',run:async()=>{ host('claude','artopath · wire the timeline'); say('you','<span class="cmd">/gate</span>'); S.gate=1; S.pool=2; counters(); viewGate(); hint('The gate counts are rules in program/, not features of a window.'); }},
-{t:'Chronicle: is this one thing or three?',n:'Star = a project you opened, dot = a session, line = the parent field. Drawn mechanically, nothing inferred.',run:async()=>{ host(null,''); S.mode='stars'; viewChron(); hint('Click any dot to read its card.'); }},
+{t:'Chronicle: main quests and side quests',n:'Star = a project you opened, dot = a session, line = the parent field. Drawn mechanically, nothing inferred. The full scroll is its own page.',run:async()=>{ host(null,''); S.mode='stars'; viewChron(); hint('Click any dot to read its card, or open the full Chronicle.'); }},
 {t:'From a document back to the conversation',n:'DR-018 carries source_session in its frontmatter; the caching paragraph names c-0921b. Thirty seconds, no search.',run:async()=>{ openFile('vault/decisions/DR-018-lineage-api.md', `<div class="acts"><button class="btn primary" id="back">Find the conversation that produced this</button></div><div class="note"><b>Provenance is never typed by hand.</b> source_session is filled by the Stop hook; the paragraph-level source comes from the card writer. Both are derived from the ledger.</div>`); $('#back').onclick=()=>{ host('codex','side quest · caching'); say('you','<span class="cmd">@chronicle/briefs/b-0921-cache-strategy.md</span> follow the question in there.'); say('ai','Given a rarely-changing graph and a 200 ms budget on a cold cache, A (LRU at the API layer) with a 7-day TTL …'); say('sys','<b>Reopened from DR-018 → c-0921b</b>transcript path from ledger.jsonl'); toast('Found in 1 hop','DR-018 → source_session → ledger → transcript path'); }; hint('Press the button in the focus pane.'); }},
 {t:'How the system knows itself',n:'Which rules were actually loaded into prompts, measured from the ledger. A rule nobody reads fails the orphan gate.',run:async()=>{ host(null,''); viewSelf(); hint('Coverage for prompts: declared edges are claims; loaded edges are facts.'); }},
 {t:'Month end: four compounding criteria',n:'There is no stop rule. These four numbers decide which part of the design earns attention next month.',run:async()=>{ viewScore(); hint('Computed from cards/ and the ledger. You fill nothing in.'); }},
@@ -562,7 +566,7 @@ async function goQuiet(k){ marks={}; cur=k; const s=STEPS[k]; $('#stepT').textCo
 $('#next').onclick=()=>go(cur+1); $('#prev').onclick=()=>jump(cur-1);
 document.addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT') return; if(e.key==='ArrowRight') go(cur+1); if(e.key==='ArrowLeft') jump(cur-1); });
 $('#hCodex').onclick=$('#hClaude').onclick=()=>toast('Host','This column stands in for Claude Code and Codex. Asteria does not own either.');
-$('#theme').onclick=()=>{ const r=document.documentElement; const dark=r.dataset.theme==='dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches); r.dataset.theme=dark?'light':'dark'; $('#theme').textContent=dark?'Dark':'Light'; };
+(function(){ const r=document.documentElement; let t='navy'; try{ t=localStorage.getItem('asteria-theme')||'navy'; }catch(e){} r.dataset.theme=t; const lbl=()=>$('#theme').textContent=r.dataset.theme==='navy'?'Parchment':'Navy'; lbl(); $('#theme').onclick=()=>{ r.dataset.theme=r.dataset.theme==='navy'?'parchment':'navy'; try{ localStorage.setItem('asteria-theme',r.dataset.theme); }catch(e){} lbl(); }; })();
 seed(); counters(); go(0);
 </script>
 </body>

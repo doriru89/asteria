@@ -4,7 +4,9 @@
 
 Asteria is the design behind a private workbench built on Claude Code and run daily by one person: 135 skills, 37 subagent roles, and 2,100+ commits since March 2026. This repository is its public shell. It holds the bet, the architecture and the human-in-the-loop design, written in English from the working design records of September 2026 and the five expert reviews that preceded them. The code itself stays private, because it is wrapped around one person's memory, notes and work. The ideas are the transferable part.
 
-**Start with the [interactive demo](https://doriru89.github.io/asteria/demo.html).** Eighteen steps, one fictional project, every screen names the file it reads. Then the [bet](docs/00-the-bet.md) for why, and the [human-in-the-loop design](docs/04-human-in-the-loop.md) for the question most teams are asking right now: what may an agent do on its own, and how does a human stay in charge without becoming a rubber stamp?
+Asteria itself is thin. On top of Claude Code it adds a harness (three hooks, three skills, a few capabilities such as a browser) and one git folder of plain files. The one thing it draws for itself is the **Chronicle**: a scroll where every session is a quest, quests line up into main quests, side quests branch off and merge back.
+
+**Start with the [interactive demo](https://doriru89.github.io/asteria/demo.html).** Eighteen steps, one fictional project, every screen names the file it reads. Then open the [Chronicle](https://doriru89.github.io/asteria/chronicle.html). Then the [bet](docs/00-the-bet.md) for why, and the [human-in-the-loop design](docs/04-human-in-the-loop.md) for the question most teams are asking right now: what may an agent do on its own, and how does a human stay in charge without becoming a rubber stamp?
 
 ## The problem
 
@@ -68,6 +70,7 @@ On disk it is three folders:
 | Page | What it covers |
 |---|---|
 | [Demo](https://doriru89.github.io/asteria/demo.html) | Eighteen interactive steps: a session, a side quest, the inbox as a pull request, the gate, the Chronicle, the load trace |
+| [Chronicle](https://doriru89.github.io/asteria/chronicle.html) | The scroll: questlines as lanes, stars sized by prompts, merges, influence edges, growth replay, the Quest Log, the side-quest lifecycle |
 | [00 · The bet](docs/00-the-bet.md) | Two compounding curves, what AI makes cheap, three questions instead of a ladder, precedents, three open contradictions |
 | [01 · Thesis](docs/01-thesis.md) | The problem, the three guarantees, measurable success, sunset conditions |
 | [02 · Architecture](docs/02-architecture.md) | Skeleton and flesh: eight invariants, three folders, the recall stack, the smart inbox, the ritual, seven open decisions |
