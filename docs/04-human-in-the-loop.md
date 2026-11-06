@@ -66,6 +66,33 @@ Three disciplines: never render it as a score or progress bar; never self-assess
 
 This mechanism is designed and deliberately not installed. The precondition is at least ten real decision records, gathered through the existing gates, before the fields and thresholds are calibrated.
 
+## Five verbs and no sixth
+
+Every human touch in Asteria is one of five verbs, so a sidecar can log them and a view can count them.
+
+| Verb | When | What it writes |
+|---|---|---|
+| **confirm** | the AI drafted something from my input: a closing card, a spark's core line, the assumptions behind a choice | one line marked `me`, the rest stays `ai` |
+| **choose** | the AI diverged into options that differ in premise | the chosen option under Decided, the rejected premises under Still open |
+| **ask** | I want more before deciding | a question into the pending pool, or a side-quest capsule |
+| **merge** | a branch comes back | the branch's conclusion into the main line's card; the moment of convergence |
+| **approve** | the AI wants to write to the vault or act outside it | the changeset lands, or the external action runs |
+
+The AI never gets a verb called "decide". Divergence is triggered by the person ("yes, three options, different premises"), and so is convergence: the AI writes down the logic the person did not say out loud and queues it for confirm or ask.
+
+## Changeset trust levels
+
+Invariant 7 says every AI write to the vault is visible. The review view shows how much the AI was trusted with each item, as a colour.
+
+| Level | Meaning | Example |
+|---|---|---|
+| **auto** | the AI wrote it in full; approval is a glance | a wiki page compiled from an article, with the original kept in `raw/` |
+| **review · split** | the AI split and routed my own words; the words are mine | a voice memo filed as a note with links added |
+| **confirm one line** | the AI drafted; I must write or confirm the core sentence | a spark candidate |
+| **learn · side quest** | the item is a question I should study before deciding; it enters the gate | "I still do not understand how CDN cache layers invalidate" |
+
+Permission follows real impact, not the type of the file. Memory edits (a card line, a spark state, a link) are reversible and batch-approved. Vault writes arrive as a changeset. External writes (push, send, publish, pay) ask every time, with no batch option.
+
 ## Evidence first
 
 One rule in this area is a hook rather than a design, and it blocks.

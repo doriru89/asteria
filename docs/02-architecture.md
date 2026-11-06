@@ -1,97 +1,191 @@
-# 02 · Architecture
+# 02 · Architecture: skeleton and flesh
 
-*Distilled from the framework draft (v2, August 2026) and the architecture review.*
+*From the architecture decision record of 26 September 2026, which superseded the August framework draft and the sidecar design that preceded it. The [interactive demo](../demo.html) walks through the same design in eighteen steps.*
 
-## One vocabulary
+## One sentence
 
-The first blueprint described the same parts three ways: as organs, as stars and constellations, and as numbered layers. Three mapping tables for one system is the opposite of elegance, because it adds to what a reader must hold in their head. The framework killed the astronomy metaphor and kept a two-field coordinate: the layer number says where something lives, the organ or port name says which one it is.
+Asteria is the skeleton for co-engineering with AI: a set of stable interfaces, one git folder, and a front end the person builds themself. The AIs and tools are flesh, replaceable at any time. It connects sessions scattered across different AIs, the files those sessions produced, and the person's own knowledge, so the person can read it, learn from it, and turn one into two.
+
+## Purpose, in priority order
+
+1. **Co-engineering.** Use AI to break information barriers, learn to make trade-offs, pick the right tools, build good products.
+2. **Legibility across sessions.** Several finished things may be one thing; one problem may have been split into several. Branches that went off to learn must come back.
+3. **Learning (Spark).** AI amplifies the person's judgment, so the judgment has to keep improving.
+4. **Zero-friction capture.** A thought pasted from a chat or spoken into a voice memo must not rot in a corner because sorting it costs too much, and must be reusable later.
+5. **Self-awareness.** Asteria can read itself (its files, rules, code) and can fetch the code context of a project it is working on.
+6. **Visual craft.** Nice to have; kept on a separate ledger.
+
+What Asteria builds itself: the thin features the person wants, and the front end. Capture, retrieval and models are borrowed wherever something exists.
+
+## The coordinate: L0 to L3
+
+The layer number says where something lives; the name says which one it is. Dependencies point downward only.
 
 ```
-L0  Constants   the skeleton: one config owns every path
+L0  Constants   the skeleton: eight invariants, program/ as the single source of settings, the interface list
 L1  Organs      memory · recall · immune · spine · structure
-L2  Ports       CODE · RESEARCH · KNOWLEDGE · ANALYSIS · STUDIO · INSPIRATION
-L3  Data        notes vault · session transcripts · work items · generated outputs
+L2  Ports       CODE · RESEARCH · KNOWLEDGE · ANALYSIS · STUDIO · INSPIRATION   (the flesh plugs in here)
+L3  Data        the notes vault · each host's transcripts · work items · outputs
+                L3 returns to L1 through the spine
 ```
 
-Dependencies point downward only. A port may import an organ; an organ may read constants; nothing imports sideways, and nothing in L1 knows what L2 does with it.
+## L0 · The eight invariants
 
-## The five organs
-
-| Organ | What it is | Why it is its own thing |
+| # | Invariant | Meaning |
 |---|---|---|
-| **memory** | A tiered store: session, project, persistent. Read at query time. | The persistent tier is the one place where an agent's write outlives the session, so it gets the strictest gate: proposals only. |
-| **recall** | Hybrid retrieval over memory and notes, lexical plus vector. | Retrieval quality is graded against a golden set as a blocking check. If the grade drops, commits stop. |
-| **immune** | Hooks plus errata. Runs at write time and can block. | It is the push channel. Memory is pulled when asked; immunity is pushed whether or not anyone asked. Merging the two would lose the push. |
-| **spine** | The session rhythm: plan, review, capture, handoff. | Without it there is no relay between sessions, and the chronicle has no raw material. |
-| **structure** | The graph of what exists and what points at what. | Out-edges are written by authors (true when written). In-edges are derived by the doctor (true globally, changes as the graph changes). Hand-written in-edges always drift. |
+| 1 | **Files are the only truth** | Everything is markdown with frontmatter in one private git repository. Change it in one place and it changes everywhere. |
+| 2 | **The skeleton defines interfaces, not implementations** | Which tool sits behind each interface can change any day. |
+| 3 | **Structure at write time, not read time** | The closing card is drafted by the AI that did the work, at the end of the session while the context is fresh. Later sessions read cards, never raw transcripts. |
+| 4 | **Vendor details stop at the adapter** | Hook names, paths and payload formats differ per host; only the adapter layer knows. |
+| 5 | **Views only read files** | The front end can be rewritten forever and holds no data of its own. |
+| 6 | **The human signs; divergence and convergence are human-triggered** | The AI proposes and stops. |
+| 7 | **AI writes are visible** | Every AI write to the vault arrives as a changeset the person reviews (batch approval allowed). |
+| 8 | **Provenance is legible** | Every file's frontmatter carries `author: me / co / ai`. The person's own words and generated text never blur. |
 
-The architecture review made one ruling that is easy to get wrong: errata and memory are not one module. They differ in delivery timing. Memory is pulled at query time, which fires when something asks. Errata are pushed at write time, which fires every time. A merged "knowledge store" would quietly drop the push channel and turn every hard rule into advice.
+### program/ · one source for all settings
 
-## The six ports
+The one-line intent rule, the search protocol, preferences, tool configuration and the skills are written once, in `program/`, and a generator distributes them into each host's entry file (the Claude Code instructions file, the agents file), each host's skills directory and the MCP configuration. Entry files are written only by the script, never by hand.
 
-Ports are the surfaces where work happens: CODE, RESEARCH, KNOWLEDGE, ANALYSIS, STUDIO and INSPIRATION. Each port is a set of skills and agents that consume organs and produce outputs in L3. CODE and RESEARCH are core because nothing else can be built without them. The other four are secondary: losing one loses a category of output, and the system still boots.
+```
+edit program/ once (with a decision record) → generator → entry files · skills · MCP config → every tool's next session
+```
 
-Two things the operator asked for turned out not to be ports at all. "Hook architecture by lifecycle" is a field on the immune organ, not a new axis. "Skill and agent management with periodic review" is one line in the prune report, not a module. The review's rule: before adding a module, ask which existing organ already owns the judgment.
+## L1 · The five organs
 
-## The six laws
+**memory · what is remembered**
 
-1. **Dependencies only point downward.** Enforced by an import-graph test, not by a sentence in a document.
-2. **Paths live only in config.** A path literal anywhere else is a defect.
-3. **Every contract ships with a check.** A contract without a check is documentation.
-4. **Everything enters through the admission gate.** New skills, agents and hooks are resolved for closure before they are wired in.
-5. **Interfaces are thin and late-bound.** Parts talk through files and config, not through shared code.
-6. **Immunity is per organ.** Each organ carries its own hooks and errata, so replacing one does not disarm the others.
-
-## The six governance devices
-
-| Device | Job | Status at review |
+| Store | Author | Contents |
 |---|---|---|
-| doctor | Checks structural integrity against every contract | planned as the first build step |
-| admission resolver | Resolves closure for anything entering the system | in the blueprint |
-| prune report | Periodic push of what has stopped earning its place | in the blueprint |
-| errata loop | Failure becomes entry becomes check | running |
-| rule-to-enforcer reconciliation | Asserts that every declared rule has a live enforcer | added by the review |
-| recurrence probe | Measures whether a fixed rule stays fixed | added by the review |
+| `chronicle/cards/` | co (AI drafts, the person confirms) | One card per session: decided / still open / next / learned |
+| `vault/sparks/` | co (the person writes the core line) | What I understood, with a maturity path: new → known → promoted to a rule in `program/` |
+| `vault/wiki/` | ai | Concept pages compiled from outside material (the LLM-wiki pattern) |
+| `vault/notes/` | me (verbatim) | My own thoughts sorted out of the inbox; the AI adds only frontmatter and links |
 
-The fifth device came out of the review's single most important finding, described next.
+**recall · how it is found again.** Cheapest first, most expensive last:
 
-## Stable versus volatile, and the leak
+1. **Inject.** A new session starts with the last few cards of the same project plus the spark index.
+2. **Index and grep.** `_index.md`, the wiki index, the vault's command-line interface. At personal scale this layer is usually enough.
+3. **Knowledge graph.** A graph tool run over the Asteria repository itself, so it can read its own rules and the relations between its files.
+4. **Code graph.** A code-graph tool run over a project repository, for code context while building.
+5. **Vector retrieval.** Added only when the scale really demands it.
 
-The operator's claim: the stable layer is governance and the shape of the data; the volatile layer is hooks and tools; the architecture's value is letting the volatile layer be replaced without shaking the stable one.
+**immune · what is defended against.** Tiering (the most sensitive material lives outside the repository and is deny-listed for AI reads); write review (invariant 7); a periodic wiki lint for contradictions, stale pages and orphans; and a premise audit that keeps claims and verified facts apart.
 
-The review tested it and found the dependency runs the other way.
+**spine · the Chronicle.** Three hooks (SessionStart, Stop, PostToolUse) append one line each to `chronicle/ledger.jsonl`: session, agent, event, file path, time. Claude Code and Codex expose hooks of the same names; only the adapter handles payload differences. Transcripts are not copied: each host stores its own locally, and the ledger records the path. Provenance (files created, files modified) is derived from the ledger; a document's frontmatter carries `source_session`, so opening a new session against a document finds the conversation that produced it at once. The person opens projects; sessions with no project go to an inbox, archive after thirty days, and can be pulled back. Hosted assistants with no file access write cards only through one narrow MCP door.
+
+Chronicle is the record of everything and can be rebuilt from the JSONL. It is also the foundation for working with other people's AIs later: a session on any host leaves the same card. Spark is the learning layer on top, and the quest log is the bridge between them. Spark is tool-neutral markdown; nothing in it depends on which AI wrote it.
+
+**structure · one format.**
+
+```yaml
+# the minimal frontmatter every markdown file shares
+type: session | spark | note | wiki | decision
+author: me | co | ai
+project: artopath            # may be empty
+topics: [[domain-a]], [[domain-b]]
+source_session: 2026-09-26-xxx
+created: 2026-09-26
+```
+
+Links are wikilinks. Vault-specific syntax follows the vault's published conventions so the relationship graph is never broken.
+
+## L2 · The six ports
+
+| Port | In / out | Current flesh |
+|---|---|---|
+| **CODE** | write code, change projects | Claude Code, the Codex app, plus a code-graph tool |
+| **RESEARCH** | search, read the web, verify | web search, browser automation, the premise audit |
+| **KNOWLEDGE** | store and compile knowledge | the vault, the smart inbox (below) |
+| **ANALYSIS** | analyse, compare, decide | Claude Code or a hosted assistant, with one-sentence intent, fan-out and merge |
+| **STUDIO** | design and prototypes | a design tool; parallel prototypes later |
+| **INSPIRATION** | loose ideas coming in | chat pastes and voice memos → `inbox.md` |
+
+Rule for a new port: write down what comes in and what goes out before choosing the flesh.
+
+## L3 · Data
+
+| Name | What | Where |
+|---|---|---|
+| the vault | the person's notes | the vault folder |
+| transcripts | each host's raw conversations | each host's local store; the ledger holds the path |
+| work items | tasks and boards | to be confirmed |
+| outputs | files a session produced | the project repositories, linked to sessions by the ledger |
+
+## The smart inbox: Spark's capture end
+
+Goal: the person pastes and speaks freely; the AI splits, groups by topic, files and links; the person sees all of it.
 
 ```
-Assumed:   stable layer ──(independent)──  volatile layer      swapping is safe
-Actual:    stable layer ──(only while)──>  some blocking hook exists in the volatile layer
-                                           otherwise it silently decays to prose
+chat paste · voice memo → inbox.md (verbatim)
+  → "/inbox" → AI splits · groups · finds existing notes → changeset (review view)
+  → approve / edit / return →  notes/ (my thoughts, verbatim)
+                               wiki/ (compiled from outside material; original kept in raw/)
+                               project or Chronicle (thoughts about running work)
+                               sparks/ candidate (I confirm the core line)
 ```
 
-Concretely, a data-shape rule in the constitution said "every link an agent writes must pass an existence check, enforced by hook X." The blueprint had marked hook X for removal, on the grounds that no incident had ever been traced to it. Had that removal gone through, the rule would still have been in the constitution and would have stopped being a rule. A blocking check fires every time; a rule with no check fires never. The failure mode of "swap a part" in the governance layer is not an error. It is a rule evaporating in silence.
+Routing rules: my own thoughts go to `notes/` verbatim, with only frontmatter, wikilinks and a one-line title added. Other people's content goes to `raw/` as received and is compiled into `wiki/`. Thoughts about running work attach to that project or session, never to the wiki, because the wiki is for stable concepts, not changing work context. Things I learned become a spark candidate whose core line I write or confirm.
 
-The fix was cheap and already implied by the third law: every stable-layer rule gets a declarative entry in config and an enforcer in the hook layer, and the doctor asserts the two match one-to-one. A rule that still exists while its enforcer is gone is a failure. Only then are the parts really swappable.
+The review view is the first front end Asteria builds: one card per item showing the source fragment, the destination, create-or-merge, and the links to add. Approve all with one click or edit item by item. It is, in effect, a pull request to the vault.
 
-A second finding from the same review: the blueprint's hand-written table of hooks had drifted from reality within weeks, by roughly one entry every four days. Hand-written inventories of live things always rot. The blueprint should be a projection of what the doctor finds, not a document someone keeps in sync.
+## The ritual
 
-## Consumption: three levels of disclosure
+```
+me   → AI       start: one line of intent (the AI names the session)
+files → AI      inject: recent cards · spark index · program settings
+                (I trigger divergence or convergence when needed)
+AI   → files    hooks record: session, touched files
+AI   → me       end: draft the closing card
+me   → files    change one line, confirm; if something was learned, one spark
+```
 
-The operator wanted a blueprint that is elegant but can be consumed without reading all of it every time. The answer is three levels, each with its own stability promise.
+The inbox runs on its own rhythm: throw things in at any time, say "/inbox" periodically, review, write.
 
-| Level | Contents | Size | When read | Stability |
-|---|---|---|---|---|
-| Resident | Thesis, four-layer coordinate, six laws, device list | one page | every session | almost never changes; changes are amendments |
-| Contract face | Per module, about ten lines: inputs, outputs, success criterion, what it assumes others provide | two pages | when work crosses a module boundary | the only reporting layer |
-| Module card | Full text of one module plus its teaching fields | as needed | only when entering that module | changes freely |
+## The front end, thin first
 
-The rule that falls out: a change at the contract level wakes the operator; a change at the card level does not. The same boundary decides what an agent may keep doing while a decision is paused (see [04](04-human-in-the-loop.md)).
+| Stage | Experience | Reads |
+|---|---|---|
+| First | Inbox review: split → destination → links, one-click approve | `inbox.md`, the AI's changeset |
+| Second | Sessions and outputs: what a session created and modified; jump from a file back to its session; cards across sessions | `ledger.jsonl`, `cards/` |
+| Later | Star map and timeline, side-quest view, reactive documents | the same files |
 
-## Elegance as a test, not an adjective
+Editing and preview borrow the vault app and the hosts' own side panels. Asteria builds only the cross-session part they lack.
 
-Four acceptance questions turn "elegant" into something that can fail.
+## The sidecar that came before
 
-1. **Honest primitives.** List every primitive (five at most). Rename and move ten random cross-module references. All ten must still resolve, and each primitive's identity must come from content or an immutable id, never from a path or filename.
-2. **Few, general composition rules.** Count the allowed ways to connect parts (five at most). Find three combinations nobody enumerated at design time and run them without editing any central file.
-3. **Traceable results.** Pick five numbers the system produced. For each, walk back within two hops to a rerunnable command and a commit. Rerun; the result must match.
-4. **A borrowed mental model.** Give someone who has never read the blueprint only the vocabulary and ask them to predict five things: where a feature goes, how two ports share code, what to check first when something breaks, what never changes, who may change it. Four of five correct, without reading the implementation.
+The previous design record put a sidecar process at the centre: it owned the files and the event log, never the terminal or the agent. Adapters did three things (observe, inject, act), the event log was append-only, and every file had a schema. Of that design, Asteria keeps the division of ownership, the adapter signatures and the append-only ledger, and defers the twelve-event model, the raw-versus-semantic layering and the full authorisation matrix. The five human verbs it introduced (confirm, choose, ask, merge, approve) are described in [04](04-human-in-the-loop.md).
 
-At the time of the review, the fourth test was failing because of the three-vocabulary problem described at the top of this page. That is why vocabulary pruning was the first thing done.
+## Kept, changed, deferred
+
+| | |
+|---|---|
+| **Kept** | Files are the only truth; vendor details stop at the adapter; sessions have a head and a tail; projects plus inbox plus thirty-day archive; the spark index and maturity path; the relationship graph belongs to the vault app; `program/` generates entry files; hosted assistants use one narrow door; sparks are confirmed by the person |
+| **Changed in this version** | Dropped a commit-based session tracker (its unit is the git commit; Asteria's unit is the session and the document, and many knowledge sessions never commit) in favour of three thin hooks and a ledger; the front end promoted to a first-class citizen; added the smart inbox, the recall stack, the author field and write review; the whole design restated in the L0–L3 coordinate |
+| **Deferred** | The twelve-event model; a host app-server adapter; selection anchors; reactive documents; the star map; twenty-agent parallel prototypes; the full authorisation matrix (only deny-read of the sensitive tier for now) |
+
+## Seven open decisions
+
+1. What exactly the vault and the work-item store are in L3.
+2. My thoughts in the inbox: keep them verbatim with AI adding only structure (the default here), or let the AI rewrite them into tidy wiki pages.
+3. Is `author` with three values (me / co / ai) enough?
+4. Inbox rhythm: run only when I say so, or a daily changeset waiting for review.
+5. Which front end first: inbox review, or sessions and outputs.
+6. Should the closing card carry an "expected → actual" field, to train trade-offs.
+7. Carried over: rename Chronicle? Are start and end hard gates or automatic defaults? What goes in the sensitive tier?
+
+## Done criteria for the first month
+
+- **Switching tools does not break anything.** The same task run in Claude Code and in Codex reads the same settings and the same cards.
+- **Provenance.** Any document leads back to the conversation that produced it within thirty seconds.
+- **Capture.** A week of chat pastes and voice memos all reach the inbox, and one review files them in under ten minutes.
+- **Compounding.** At month end, four criteria are scored and decide the next front-end stage: future sessions are more relevant; answers fit me better; new things are explained better; I can review what I already know.
+
+## Lessons kept from the August review
+
+Two findings from the earlier blueprint's review still shape the design.
+
+**A rule with no check evaporates silently.** The August blueprint had marked a hook for removal because no incident had ever been traced to it, while a constitutional rule still said "enforced by that hook". Had the removal gone through, the rule would have stayed in the text and stopped being a rule. The fix is the same in both designs: every stable rule has a declared enforcer, and a check asserts the two match. In Asteria this is why `program/` is generated, never hand-edited, and why invariant 7 is a review view rather than a sentence.
+
+**Hand-written inventories of live things rot.** The blueprint's table of hooks drifted from reality by roughly one entry every four days. Nothing in Asteria is a hand-maintained list of what exists: the ledger is appended by hooks, indexes are generated from frontmatter, and the Chronicle views draw from the project and parent fields of the cards. [06](06-self-knowledge.md) takes this further.
+
+Some mechanisms from that review (a recurrence probe for fixed rules, a block on advisory-only warnings) run in the private workbench today. They are operating rules of that workbench, not part of the Asteria design.

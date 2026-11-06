@@ -1,6 +1,6 @@
 # 03 · Memory and errata
 
-*Distilled from the architecture and evaluation reviews, the external-precedent survey, and the operating rules of the running workbench.*
+*Distilled from the architecture and evaluation reviews, the external-precedent survey, the operating rules of the running workbench, and the September 2026 design of the inbox and the Chronicle.*
 
 ## Why memory gets the strictest gate
 
@@ -70,9 +70,34 @@ The order of operations when a new rule seems needed: delete an existing one, th
 
 The same reasoning rejected a cost dashboard. An agent recording and judging its own spend is self-review. What was adopted instead is a hard token budget per chain that stops the chain when exceeded: a kill switch, not a chart.
 
-## What is installed and what is not
+## The inbox: capture is free, sorting is a rhythm
 
-Honesty about status, as the reviews required:
+The cost of tidying is what kills capture, so capture does not tidy. Chat pastes and voice memos land in `inbox.md` as they came. Sorting is a separate step the person triggers ("/inbox"), and its output is a changeset: one card per item with the source fragment, the destination, create-or-merge, and the links to add. The person approves all at once or edits item by item. It is a pull request to the vault.
+
+| What arrived | Where it goes | What the AI may do |
+|---|---|---|
+| My own thought | `notes/`, verbatim | add frontmatter, a one-line title, wikilinks |
+| Other people's content (an article, a screenshot) | `raw/` as received; compiled into `wiki/` | write the compiled page, cite the raw original |
+| A thought about running work | that project's card or session | attach it; never put it in the wiki, which is for stable concepts |
+| Something I learned | a spark candidate | draft the core line; I write or confirm it |
+
+## Author on two axes
+
+Every file carries `author: me / co / ai`. In practice the field splits into two: `input` says whose idea it was, `words` says who wrote the text. My sentence touched up by the AI is `me / ai`; a card drafted by the AI from the ledger is `ai / ai`; a spark whose core line I wrote myself is `me / me`. The split exists so the vault can be filtered on either axis, and so my own words and generated words never blur. Whether three values are enough is one of the open decisions in [02](02-architecture.md).
+
+## Chronicle and Spark
+
+The Chronicle is the record of everything: a ledger appended by hooks, one card per session, and the capsules cut out as side quests. It judges nothing, and it can be rebuilt from the JSONL. Because every host leaves the same card, it is also the foundation for working with other people's AIs later.
+
+Spark is the learning layer on top: one file per thing understood, with a core line written by the person and a maturity state (new → known → promoted to a rule in `program/`). The spark index is generated from frontmatter and injected at session start, so a learning session can open with "what you already know" instead of starting from zero. Spark is tool-neutral markdown; nothing in it depends on which AI wrote it. The quest log, the running list of what is open and what branched off, is the bridge between the two.
+
+## Three beats of governance
+
+Checks run at three rhythms. Write time, by hook, sees one file and blocks on schema, forbidden targets and path literals. Commit time sees the whole diff and blocks on cross-file consistency and review size. A periodic sweep sees the whole repository and the ledger, finds orphans, stale pages and rule-to-enforcer drift, and is the only beat with a person in it and the only one allowed semantic judgment. [06](06-self-knowledge.md) has the full table.
+
+## What runs in the private workbench today
+
+Honesty about status, as the reviews required. These are operating rules of the private workbench; the Asteria design in [02](02-architecture.md) adopts the tiering, the proposal model and write review, and leaves the rest as workbench practice.
 
 - Running: tiered memory, the proposal model, hybrid retrieval with the golden-set check, write-time errata hooks, the advisory-theater and chronic-noise checks, commit-time heavy checks.
 - Designed, partly installed: scope and confidence labels on memory entries, the abstention gate with logged reasons.

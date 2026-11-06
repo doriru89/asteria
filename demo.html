@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Asteria · interactive demo</title>
+<meta name="description" content="A sixteen-step walkthrough of Asteria: a personal agent workbench where agents do the volume and one human signs the decisions. Every screen names the file it reads.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9E5DC; --bg2:#DCD6C9; --ink:#182238; --muted:#4F5A73; --faint:#8791A5;
+  --gold:#8C6A14; --gold-soft:rgba(140,106,20,.14);
+  --blue:#1F3F73; --blue-soft:rgba(31,63,115,.10);
+  --cyan:#176A62; --cyan-soft:rgba(23,106,98,.13);
+  --rose:#A33A45; --rose-soft:rgba(163,58,69,.11);
+  --glass:rgba(250,248,243,.78); --glass-edge:rgba(24,34,56,.10); --glass-hi:rgba(255,255,255,.9);
+  --line:rgba(24,34,56,.12); --paper:#FBF9F4; --star:#2B3A5C; --shadow:0 10px 30px rgba(24,34,56,.10);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#08142B; --bg2:#173A70; --ink:#EDE8DC; --muted:#A9B4CC; --faint:#66759A;
+  --gold:#F2D06B; --gold-soft:rgba(242,208,107,.16); --blue:#8FB4EE; --blue-soft:rgba(143,180,238,.12);
+  --cyan:#7FD8CE; --cyan-soft:rgba(127,216,206,.14); --rose:#F09AA0; --rose-soft:rgba(240,154,160,.16);
+  --glass:rgba(13,28,60,.66); --glass-edge:rgba(160,185,240,.16); --glass-hi:rgba(255,255,255,.06);
+  --line:rgba(160,185,240,.14); --paper:#0E1D3E; --star:#F5E7B0; --shadow:0 14px 40px rgba(0,0,0,.42);
+}}
+:root[data-theme="dark"]{
+  --bg:#08142B; --bg2:#173A70; --ink:#EDE8DC; --muted:#A9B4CC; --faint:#66759A;
+  --gold:#F2D06B; --gold-soft:rgba(242,208,107,.16); --blue:#8FB4EE; --blue-soft:rgba(143,180,238,.12);
+  --cyan:#7FD8CE; --cyan-soft:rgba(127,216,206,.14); --rose:#F09AA0; --rose-soft:rgba(240,154,160,.16);
+  --glass:rgba(13,28,60,.66); --glass-edge:rgba(160,185,240,.16); --glass-hi:rgba(255,255,255,.06);
+  --line:rgba(160,185,240,.14); --paper:#0E1D3E; --star:#F5E7B0; --shadow:0 14px 40px rgba(0,0,0,.42);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+.sky{position:fixed;inset:0;z-index:0;background:
+  radial-gradient(1200px 700px at 78% -10%, var(--bg2), transparent 60%),
+  radial-gradient(900px 600px at -10% 110%, var(--bg2), transparent 58%), var(--bg)}
+.sky::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(45deg, rgba(0,0,0,.018) 0 2px, transparent 2px 6px),
+             repeating-linear-gradient(-45deg, rgba(255,255,255,.03) 0 1px, transparent 1px 7px)}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--glass-hi), var(--shadow)}
+.app{position:relative;z-index:1;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100%;gap:10px;padding:10px 12px}
+
+/* top */
+.top{border-radius:14px;display:flex;align-items:center;gap:14px;padding:8px 14px}
+.top h1{font:700 15px/1 var(--serif);margin:0;letter-spacing:.02em}
+.top h1 a{color:inherit;text-decoration:none}
+.top .sub{color:var(--muted);font-size:12.5px}
+.top .sp{flex:1}
+.pill{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);white-space:nowrap}
+.pill b{color:var(--ink);font-weight:500}
+.tbtn{border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:12.5px;white-space:nowrap}
+.tbtn:hover{background:var(--blue-soft)}
+.tbtn a{color:inherit;text-decoration:none}
+
+/* main grid */
+.main{display:grid;grid-template-columns:292px minmax(0,1fr) 360px;gap:10px;min-height:0}
+.col{border-radius:16px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.col > .hd{padding:10px 14px 8px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.col > .hd h2{font:700 13.5px/1.2 var(--serif);margin:0}
+.col > .hd small{color:var(--faint);font-size:11.5px}
+.col > .bd{padding:10px 12px 14px;overflow:auto;min-height:0;flex:1}
+
+/* tree */
+.tree{font-size:13px;line-height:1.55}
+.tree .dir{margin-top:6px}
+.tree .dir > .name{font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:12.5px}
+.tree .dir > .name em{font:inherit;font-family:var(--sans);font-style:normal;color:var(--faint);font-weight:400;font-size:11px;margin-left:auto;text-align:right}
+.tree .kids{margin-left:12px;border-left:1px solid var(--line);padding-left:8px}
+.tree .f{display:flex;align-items:center;gap:6px;padding:2px 6px;border-radius:6px;color:var(--muted);width:100%;text-align:left;font-family:var(--mono);font-size:12px}
+.tree .f:hover{background:var(--blue-soft);color:var(--ink)}
+.tree .f.on{background:var(--gold-soft);color:var(--ink)}
+.tree .f .who{margin-left:auto;font-size:10.5px;color:var(--faint);font-family:var(--sans)}
+.tree .f.new{color:var(--ink)}
+.tree .f.new::after,.tree .f.mod::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);flex:none;animation:pulse 1.4s ease-out 2}
+.tree .f.mod::after{background:var(--gold)}
+.tree .f.read::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--faint);flex:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 var(--cyan-soft)}100%{box-shadow:0 0 0 10px transparent}}
+.legend{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);display:grid;gap:3px}
+.legend span i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* center */
+.focus{max-width:780px;margin:0 auto}
+.focus h3{font:700 18px/1.3 var(--serif);margin:4px 0 10px}
+.focus p{margin:0 0 10px;max-width:72ch}
+.fm{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:2px 14px;margin:0 0 12px;font-family:var(--mono)}
+.fm .k{color:var(--faint)}
+.fm .v.me{color:var(--cyan)} .fm .v.ai{color:var(--gold)} .fm .v.co{color:var(--blue)}
+.doc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+.doc h4{font:700 14px/1.3 var(--serif);margin:12px 0 6px}
+.doc h4:first-child{margin-top:0}
+.doc ul{margin:0 0 8px;padding-left:18px}
+.doc li{margin:2px 0}
+.doc .me{border-left:3px solid var(--cyan);padding-left:10px;margin:6px 0}
+.doc .ai{border-left:3px solid var(--gold);padding-left:10px;margin:6px 0;color:var(--muted)}
+.doc .ext{border-left:3px solid var(--faint);padding-left:10px;margin:6px 0;color:var(--muted)}
+.doc .anchor{background:var(--gold-soft);border-radius:4px;padding:0 3px}
+.doc code,.mono,code{font-family:var(--mono);font-size:12px}
+.jsonl{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--muted);white-space:pre-wrap;word-break:break-all}
+.jsonl b{color:var(--ink);font-weight:500}
+.note{margin-top:14px;padding:10px 14px;border-left:3px solid var(--blue);background:var(--blue-soft);border-radius:0 10px 10px 0;font-size:13px;color:var(--muted)}
+.note b{color:var(--ink);font-weight:500}
+.note.warn{border-color:var(--rose);background:var(--rose-soft)}
+.folders{display:grid;gap:10px}
+.folder{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.folder h4{font:700 15px/1.2 var(--serif);margin:0 0 4px}
+.folder h4 code{font-size:13px;color:var(--gold)}
+.folder p{margin:0;color:var(--muted);font-size:13px}
+.trio{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.trio .box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:13px}
+.trio .box b{display:block;font:700 13.5px var(--serif);margin-bottom:4px}
+.trio .box span{display:block;color:var(--muted)}
+.inv{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:12px;font-size:12.5px}
+.inv div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--muted)}
+.inv div b{color:var(--ink);font-weight:500;display:block}
+.inv div i{color:var(--gold);font-style:normal;font-family:var(--mono);font-size:11px;margin-right:6px}
+
+/* options (divergence) */
+.opts{display:grid;gap:10px}
+.opt{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:start;text-align:left;width:100%}
+.opt:hover{border-color:var(--blue)}
+.opt.on{border-color:var(--gold);background:var(--gold-soft)}
+.opt .n{font:700 18px var(--serif);color:var(--gold)}
+.opt b{font-weight:600;display:block}
+.opt span{color:var(--muted);font-size:12.5px;display:block}
+.opt .tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--faint);white-space:nowrap}
+.verbs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.verbs span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted)}
+.verbs span.on{border-color:var(--gold);color:var(--gold)}
+
+/* changeset */
+.cs{display:grid;gap:10px}
+.cs .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:start}
+.cs .src{grid-column:1/-1;font-size:13px;color:var(--ink);border-left:3px solid var(--cyan);padding-left:10px}
+.cs .src.ext{border-color:var(--faint);color:var(--muted)}
+.cs .to{font-size:12.5px;color:var(--muted)}
+.cs .to b{color:var(--ink);font-weight:500}
+.cs .trust{font-size:11.5px;border-radius:999px;padding:2px 9px;border:1px solid var(--line);white-space:nowrap;align-self:center}
+.cs .trust.auto{color:var(--gold);border-color:var(--gold)}
+.cs .trust.split{color:var(--cyan);border-color:var(--cyan)}
+.cs .trust.line{color:var(--rose);border-color:var(--rose)}
+.cs .trust.learn{color:var(--blue);border-color:var(--blue)}
+.cs .links{grid-column:1/-1;font-size:12px;color:var(--faint)}
+.cs .links span{background:var(--blue-soft);border-radius:4px;padding:0 5px;margin-right:4px;font-family:var(--mono);font-size:11px}
+.cs .card.ok{opacity:.55}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-size:13px;background:var(--paper)}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+:root[data-theme="dark"] .btn.primary{color:#08142B}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* stars */
+.starwrap{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:6px;position:relative}
+.starwrap svg{width:100%;height:auto;display:block}
+.smode{display:flex;gap:6px;margin-bottom:10px}
+.smode button{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:12.5px}
+.smode button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.scard{margin-top:10px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:13px}
+.scard p{margin:3px 0}
+.pt{cursor:pointer}
+.tl{display:grid;gap:6px;font-size:12.5px}
+.tl div{display:grid;grid-template-columns:70px 1fr;gap:10px;padding:6px 10px;border-radius:8px;background:var(--paper);border:1px solid var(--line)}
+.tl div span:first-child{color:var(--faint);font-family:var(--mono);font-size:11px}
+.tl div.b{margin-left:24px;border-style:dashed}
+
+/* gate */
+.gate{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;font-size:13px;margin-bottom:12px}
+.gate div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:56px}
+.gate .h{background:transparent;border:0;color:var(--faint);font-size:12px;display:flex;align-items:end}
+.gate .hot{border-color:var(--rose);background:var(--rose-soft)}
+.counters{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.counters div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:12.5px;color:var(--muted)}
+.counters b{font:700 18px var(--serif);color:var(--ink);display:block}
+.tiers{display:grid;gap:6px;font-size:12.5px;margin-top:12px}
+.tiers div{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.tiers div span:last-child{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--faint);white-space:nowrap}
+.tiers div.ask span:last-child{color:var(--rose);border-color:var(--rose)}
+
+/* score */
+.score{display:grid;gap:8px}
+.score div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:grid;grid-template-columns:1fr auto;gap:2px 14px;align-items:center;font-size:13px}
+.score small{grid-column:1;color:var(--muted)}
+.score b{font:700 20px var(--serif);color:var(--gold);grid-row:1/3}
+
+/* curves / traces */
+.chart{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px}
+.chart svg{width:100%;height:auto;display:block}
+.qs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.qs div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--muted)}
+.qs div b{display:block;font:700 13.5px var(--serif);color:var(--ink);margin-bottom:4px}
+.qs div i{display:block;font-style:normal;color:var(--gold);margin-top:6px}
+.bars{display:grid;gap:6px;font-size:12.5px}
+.bars div{display:grid;grid-template-columns:200px 1fr 54px;gap:10px;align-items:center}
+.bars div span:first-child{font-family:var(--mono);font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bars div span:last-child{text-align:right;color:var(--faint);font-family:var(--mono);font-size:11px}
+.bars .bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.bars .bar i{display:block;height:100%;background:var(--cyan);width:0;transition:width .8s ease}
+.bars .orphan .bar i{background:var(--rose)}
+.bars .orphan span:first-child{color:var(--rose)}
+
+/* host */
+.host{display:flex;flex-direction:column;min-height:0}
+.hostbar{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.hostbar button{border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:12px;color:var(--muted)}
+.hostbar button.on{background:var(--paper);color:var(--ink);border-color:var(--ink)}
+.hostbar .sess{margin-left:auto;font-size:11.5px;color:var(--faint);align-self:center;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hostbody{display:grid;grid-template-rows:minmax(0,1fr) auto;min-height:0;flex:1}
+.chat{overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:12.5px}
+.msg{max-width:96%;border-radius:12px;padding:8px 11px;background:var(--paper);border:1px solid var(--line)}
+.msg.you{align-self:flex-end;background:var(--blue-soft);border-color:transparent}
+.msg.sys{background:var(--gold-soft);border-color:transparent;font-size:12px;color:var(--muted)}
+.msg.sys b{color:var(--ink);font-weight:500;display:block;margin-bottom:2px}
+.msg .cmd{font-family:var(--mono);background:var(--paper);border-radius:4px;padding:0 4px;font-size:11.5px}
+.msg .q{background:var(--gold-soft);border-radius:4px;padding:0 3px}
+.hrail{border-top:1px solid var(--line);padding:8px 12px 10px;font-size:12px}
+.hrail h5{margin:0 0 4px;font:700 12px var(--serif);color:var(--muted)}
+.hrail .files span{display:inline-block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin:2px 4px 2px 0;font-family:var(--mono);font-size:11px}
+.hrail .files span.n{border-color:var(--cyan)} .hrail .files span.m{border-color:var(--gold)}
+.hrail .empty{color:var(--faint)}
+.hint{padding:6px 12px 8px;font-size:11.5px;color:var(--faint);border-top:1px solid var(--line)}
+
+/* bottom */
+.bot{border-radius:14px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:10px 14px}
+.bot .nav{display:flex;gap:6px}
+.bot .nav button{border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:13px;background:var(--paper)}
+.bot .nav button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bot .nav button:disabled{opacity:.4;cursor:default}
+.step{min-width:0}
+.step .t{font:700 14px/1.3 var(--serif);margin:0}
+.step .n{color:var(--muted);font-size:12.5px;margin:2px 0 0}
+.dots{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:240px}
+.dots button{width:13px;height:13px;border-radius:50%;border:1px solid var(--line);background:transparent}
+.dots button.done{background:var(--faint);border-color:var(--faint)}
+.dots button.cur{background:var(--gold);border-color:var(--gold)}
+.toast{position:fixed;right:24px;bottom:84px;z-index:5;border-radius:12px;padding:10px 14px;font-size:12.5px;max-width:320px;opacity:0;transform:translateY(8px);transition:.25s}
+.toast.show{opacity:1;transform:none}
+.toast b{display:block;font-weight:500}
+@media (max-width:1100px){ .main{grid-template-columns:240px minmax(0,1fr)} .host{display:none} .qs{grid-template-columns:1fr} }
+@media (max-width:760px){ body{overflow:auto} .app{height:auto;min-height:100%} .main{grid-template-columns:minmax(0,1fr)} .tree-col{display:none} .bot{grid-template-columns:1fr} .dots{display:none} .inv,.trio{grid-template-columns:1fr} .top .sub{display:none} .bars div{grid-template-columns:120px 1fr 44px} }
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+<div class="sky"></div>
+<div class="app">
+  <header class="top glass">
+    <h1><a href="./">ASTERIA</a> · demo</h1>
+    <span class="sub">Three folders · two hooks · three skills. No window of its own: this page only draws the files.</span>
+    <span class="sp"></span>
+    <span class="pill">gate <b id="gateN">0/1</b></span>
+    <span class="pill">pending <b id="poolN">0/3</b></span>
+    <button class="tbtn" id="theme">Light</button>
+    <span class="tbtn"><a href="https://github.com/doriru89/asteria">Repo</a></span>
+  </header>
+
+  <div class="main">
+    <section class="col glass tree-col">
+      <div class="hd"><h2>asteria/</h2><small>The single source of truth. Plain files you can manage by hand.</small></div>
+      <div class="bd"><div class="tree" id="tree"></div>
+        <div class="legend">
+          <span><i style="background:var(--cyan)"></i>created in this step</span>
+          <span><i style="background:var(--gold)"></i>modified in this step</span>
+          <span><i style="background:var(--faint)"></i>read in this step</span>
+          <span>me / ai / co on the right: whose idea, whose words</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="col glass">
+      <div class="hd"><h2 id="focusT">Focus</h2><small id="focusS"></small></div>
+      <div class="bd"><div class="focus" id="focus"></div></div>
+    </section>
+
+    <section class="col glass host">
+      <div class="hd"><h2>Host</h2><small>Where you actually type. Asteria is not here.</small></div>
+      <div class="hostbar">
+        <button id="hClaude">Claude Code</button><button id="hCodex">Codex</button>
+        <span class="sess" id="hSess"></span>
+      </div>
+      <div class="hostbody">
+        <div class="chat" id="chat"></div>
+        <div class="hrail"><h5>Files this session touched — the host draws this, Asteria does not redraw it</h5><div class="files" id="hFiles"><span class="empty">none yet</span></div></div>
+      </div>
+      <div class="hint" id="hHint">Hooks run quietly here.</div>
+    </section>
+  </div>
+
+  <footer class="bot glass">
+    <div class="nav"><button id="prev">Back</button><button id="next" class="primary">Next</button></div>
+    <div class="step"><p class="t" id="stepT"></p><p class="n" id="stepN"></p></div>
+    <div class="dots" id="dots"></div>
+  </footer>
+</div>
+<div class="toast glass" id="toast"></div>
+
+<script>
+/* ---------------- helpers ---------------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const wait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
+let toastT; function toast(t,b){ const e=$('#toast'); e.innerHTML=`<b>${esc(t)}</b>${b?esc(b):''}`; e.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>e.classList.remove('show'),2600); }
+
+/* ---------------- file system (the truth) ---------------- */
+const FS={};
+const DESC={ 'program/':'settings · written once, distributed by script', 'program/skills/':'the three skills', 'chronicle/':'ledger · hooks write it', 'chronicle/cards/':'one card per session', 'chronicle/briefs/':'side-quest capsules', 'vault/':'the vault · what Obsidian opens', 'vault/sparks/':'what I understood', 'vault/notes/':'my own thoughts, verbatim', 'vault/wiki/':'compiled from outside material', 'vault/decisions/':'decision records', 'vault/raw/':'originals, untouched' };
+let marks={}; let focusPath=null;
+function put(path, who, fm, body, mark){ FS[path]={who,fm,body}; if(mark) marks[path]=mark; renderTree(); }
+function mark(path,m){ marks[path]=m; renderTree(); }
+function seed(){
+  for(const k of Object.keys(FS)) delete FS[k];
+  put('program/core.md','me',{type:'program'},`<h4>One-line intent</h4><p>Every session opens with one line saying what this is for. The AI names the session; I do not have to.</p><h4>Break the information barrier</h4><p>Search sources from the last twelve months first, at least two independent ones. Anything unverified is tagged [claim].</p><h4>The human signs</h4><p>Three options that differ in premise, one recommendation, then stop.</p>`);
+  put('program/preferences.md','me',{type:'program'},`<p>Explain before you execute. Conclusion first, insight after. If the counter-argument does not hold, say so.</p>`);
+  put('program/hooks.md','co',{type:'program'},`<p><b>SessionStart</b>: inject the latest cards of this project + <code>sparks/_index.md</code> + <code>program/core.md</code><br><b>PostToolUse</b>: append every touched path to <code>ledger.jsonl</code><br><b>Stop</b>: read the plan, the tasks and the ledger, and let a cheap model draft one card</p>`);
+  put('program/skills/side-quest.md','co',{type:'skill'},`<p>Cut just enough context out of the current conversation into a capsule of at most 80 lines, written to <code>chronicle/briefs/</code>. Four kinds: quick · explore · learn · verdict.</p>`);
+  put('program/skills/inbox.md','co',{type:'skill'},`<p>Read <code>vault/inbox.md</code>, split it, group by topic, find existing notes, and emit a changeset with one of five destinations per item.</p>`);
+  put('program/skills/gate.md','co',{type:'skill'},`<p>The triage gate and the pause protocol. Called when I want to converge; invisible otherwise.</p>`);
+  put('chronicle/ledger.jsonl','ai',{},``);
+  put('chronicle/cards/c-0919-artopath-lineage-graph.md','ai',{type:'card',project:'artopath',host:'codex',input:'ai',words:'ai'},`<h4>Decided</h4><ul><li>Lineage graph uses Neo4j Cypher queries first; no home-built graph</li></ul><h4>Still open</h4><ul><li>Artist disambiguation: what about two artists with one name</li></ul><h4>Next</h4><ul><li>Draft the <code>/api/lineage</code> contract</li></ul><h4>Learned</h4><ul><li>[[graph-traversal-depth]]</li></ul>`);
+  put('chronicle/cards/c-0920-artopath-api-draft.md','ai',{type:'card',project:'artopath',host:'claude-code',input:'ai',words:'ai'},`<h4>Decided</h4><ul><li>Lineage endpoint returns three levels; depth is a parameter</li></ul><h4>Still open</h4><ul><li>Caching strategy</li></ul><h4>Next</h4><ul><li>Wire the endpoint to the front-end timeline</li></ul>`);
+  put('chronicle/cards/c-0918-okr-review.md','ai',{type:'card',project:'work',host:'codex',input:'ai',words:'ai'},`<h4>Decided</h4><ul><li>Q4 OKR gets three key results, not five</li></ul>`);
+  put('vault/inbox.md','me',{type:'inbox'},`<p class="me">(empty. Chat pastes and voice memos land here, verbatim.)</p>`);
+  put('vault/sparks/_index.md','ai',{type:'index',generated:'from frontmatter'},`<h4>Graph databases</h4><ul><li>known · [[graph-traversal-depth]] depth and blow-up</li><li>new · [[cypher-basics]]</li></ul><h4>Systems design</h4><ul><li>known · [[cache-invalidation]]</li><li>unknown · [[cdn-cache-layers]]</li></ul><h4>Product</h4><ul><li>known · [[okr-three-krs]]</li></ul>`);
+  put('vault/sparks/graph-traversal-depth.md','co',{type:'spark',state:'known',input:'me',words:'ai'},`<p class="me">One line: every extra level of a graph traversal multiplies the node count by the average degree, so the endpoint must cap depth.</p>`);
+  put('vault/decisions/DR-018-lineage-api.md','co',{type:'decision',project:'artopath',source_session:'c-0920-artopath-api-draft',input:'me',words:'ai'},`<h4>Context</h4><p>The lineage query feeds the front-end timeline.</p><h4>Constraints</h4><p>Respond within 200 ms; default depth 3.</p><h4>Architecture</h4><p>The endpoint returns <span class="anchor">nodes grouped by depth, edges listed separately</span>; the front end assembles the timeline.</p><h4>To do</h4><ul><li>Caching strategy</li></ul>`);
+  put('vault/wiki/graph-databases.md','ai',{type:'wiki',input:'ai',words:'ai'},`<p class="ai">Compiled page: three storage models for graph databases …</p>`);
+  marks={}; renderTree();
+}
+function renderTree(){
+  const paths=Object.keys(FS).sort(); const root={};
+  for(const p of paths){ const parts=p.split('/'); let n=root; for(let i=0;i<parts.length;i++){ const k=parts[i]; if(i===parts.length-1){ n[k]={__file:p}; } else { n[k]=n[k]||{}; n=n[k]; } } }
+  const rec=(node,prefix)=>{ let h=''; for(const k of Object.keys(node).sort((a,b)=>{const fa=!!node[a].__file, fb=!!node[b].__file; return fa===fb? a.localeCompare(b) : (fa?1:-1);})){ const v=node[k]; if(v.__file){ const p=v.__file; const f=FS[p]; const m=marks[p]||''; h+=`<button class="f ${m} ${p===focusPath?'on':''}" data-p="${esc(p)}"><span>${esc(k)}</span><span class="who">${esc(f.who)}</span></button>`; } else { const d=prefix+k+'/'; h+=`<div class="dir"><div class="name">${esc(k)}/<em>${esc(DESC[d]||'')}</em></div><div class="kids">${rec(v,d)}</div></div>`; } } return h; };
+  $('#tree').innerHTML=rec(root,'');
+  $$('#tree .f').forEach(b=>b.onclick=()=>openFile(b.dataset.p));
+}
+function fmHTML(fm){ const rows=Object.entries(fm||{}); if(!rows.length) return ''; return `<div class="fm">${rows.map(([k,v])=>`<span class="k">${esc(k)}</span><span class="v ${(k==='input'||k==='words'||k==='author')?esc(v):''}">${esc(v)}</span>`).join('')}</div>`; }
+function openFile(p, extra=''){ focusPath=p; const f=FS[p]; if(!f) return; setFocus(p.split('/').pop(), p, (p.endsWith('.jsonl')? `<div class="jsonl">${f.body||'<span style="color:var(--faint)">(empty)</span>'}</div>` : fmHTML(f.fm)+`<div class="doc">${f.body}</div>`)+extra); renderTree(); }
+function setFocus(t,s,html){ focusPath=null; $('#focusT').textContent=t; $('#focusS').textContent=s||''; $('#focus').innerHTML=html; renderTree(); }
+
+/* ---------------- host ---------------- */
+const H={host:null, sess:'', files:[]};
+function host(name, sess){ H.host=name; H.sess=sess||''; $('#hCodex').classList.toggle('on',name==='codex'); $('#hClaude').classList.toggle('on',name==='claude'); $('#hSess').textContent=sess||''; $('#chat').innerHTML=''; H.files=[]; renderHFiles(); }
+function say(cls, html){ const c=$('#chat'); const d=document.createElement('div'); d.className='msg '+cls; d.innerHTML=html; c.appendChild(d); c.scrollTop=c.scrollHeight; return d; }
+function hfile(p,kind){ H.files.push({p,kind}); renderHFiles(); }
+function renderHFiles(){ const e=$('#hFiles'); e.innerHTML=H.files.length? H.files.map(f=>`<span class="${f.kind}">${esc(f.p.split('/').pop())}</span>`).join('') : '<span class="empty">none yet</span>'; }
+function hint(t){ $('#hHint').textContent=t; }
+
+/* ---------------- state ---------------- */
+const S={gate:0,pool:0,ledger:[],mode:'stars',choice:null};
+function counters(){ $('#gateN').textContent=`${S.gate}/1`; $('#poolN').textContent=`${S.pool}/3`; }
+function ledger(line){ S.ledger.push(line); FS['chronicle/ledger.jsonl'].body=S.ledger.map(l=>esc(l).replace(/"(session|agent|event|path)":"([^"]+)"/g,(m,k,v)=>`"${k}":<b>"${v}"</b>`)).join('\n'); marks['chronicle/ledger.jsonl']='mod'; renderTree(); if(focusPath==='chronicle/ledger.jsonl') openFile(focusPath); }
+
+/* ---------------- views ---------------- */
+function viewBet(){
+  setFocus('The bet','Why a workbench, and why it has to own its files',`
+  <div class="chart"><svg viewBox="0 0 780 260" role="img" aria-label="Two compounding curves over months">
+    <defs><linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="var(--cyan)" stop-opacity=".1"/><stop offset="1" stop-color="var(--cyan)" stop-opacity=".9"/></linearGradient></defs>
+    <line x1="50" y1="220" x2="640" y2="220" stroke="var(--line)"/><line x1="50" y1="20" x2="50" y2="220" stroke="var(--line)"/>
+    <text x="640" y="240" text-anchor="end" font-size="11" fill="var(--faint)">months of daily use →</text>
+    <text x="40" y="24" text-anchor="end" font-size="11" fill="var(--faint)">value</text>
+    <path d="M50,218 C280,214 460,190 640,110 L640,40 C400,150 230,205 50,215 Z" fill="url(#gA)" opacity=".25"/>
+    <path d="M50,215 C230,205 400,150 640,40" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+    <text x="650" y="44" font-size="12" fill="var(--gold)">AI knows you better</text>
+    <path d="M50,218 C280,214 460,190 640,110" fill="none" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <text x="650" y="114" font-size="12" fill="var(--cyan)">you get stronger</text>
+    <text x="340" y="160" font-size="11.5" fill="var(--muted)" text-anchor="middle">the gap is cognitive debt: the system improves, the person does not</text>
+  </svg></div>
+  <p style="margin-top:12px">Two curves compound when you work with AI every day. Most products only climb the first. Asteria is built so the second climbs too: every session ends in a card, every lesson becomes a spark, every decision pauses long enough to be learned.</p>
+  <div class="qs">
+    <div><b>Who is it for?</b>One person building with AI, not a team seat.<i>→ one git folder, no accounts</i></div>
+    <div><b>What accumulates?</b>Cards, sparks, decisions and notes: the person's judgment, not a chat log.<i>→ plain markdown with frontmatter</i></div>
+    <div><b>Who owns it?</b>The person. Technical compatibility is cheap; permission compatibility is expensive.<i>→ own files, official CLIs, open protocols</i></div>
+  </div>
+  <div class="note"><b>Why no app.</b> Anki, Obsidian and Logseq lasted because the files outlived the tools. The AIs are replaceable flesh; the folder is the skeleton.</div>`);
+}
+function viewIntro(){
+  setFocus('Three folders','The whole structure of asteria/',`
+  <div class="folders">
+    <div class="folder"><h4><code>program/</code> settings</h4><p>Written once: the one-line intent rule, preferences, the search protocol, the source of the three skills. A script distributes them into CLAUDE.md, AGENTS.md and each tool's skills directory. Entry files are never edited by hand.</p></div>
+    <div class="folder"><h4><code>chronicle/</code> ledger</h4><p><code>ledger.jsonl</code> is appended by hooks; <code>cards/</code> holds one card per session, drafted by a cheap model at the end; <code>briefs/</code> holds the capsules you cut out as side quests. It records everything that happened and judges nothing.</p></div>
+    <div class="folder"><h4><code>vault/</code> the vault</h4><p>What Obsidian opens: <code>inbox.md</code>, <code>notes/</code>, <code>wiki/</code>, <code>sparks/</code>, <code>decisions/</code>. AI writes here directly; your input and the AI's are marked apart.</p></div>
+  </div>
+  <div class="trio">
+    <div class="box"><b>Two hooks do the defaults</b><span>SessionStart injects · Stop writes the card (PostToolUse records paths on the way). You do nothing.</span></div>
+    <div class="box"><b>Three skills do the deliberate</b><span>/side-quest cuts a branch · /inbox sorts the inbox · /gate triages and pauses. Called only when you want them.</span></div>
+  </div>
+  <h3 style="margin-top:16px;font-size:15px">Eight invariants</h3>
+  <div class="inv">
+    <div><b><i>1</i>Files are the only truth</b>Everything is markdown with frontmatter in one private git repo.</div>
+    <div><b><i>2</i>The skeleton defines interfaces, not implementations</b>Which tool sits behind each interface can change any day.</div>
+    <div><b><i>3</i>Structure at write time, not read time</b>The card is drafted while the context is fresh; later sessions read cards, never transcripts.</div>
+    <div><b><i>4</i>Vendor details stop at the adapter</b>Hook names, paths and payloads differ per tool; only the adapter knows.</div>
+    <div><b><i>5</i>Views only read files</b>The front end can change forever and holds no data of its own.</div>
+    <div><b><i>6</i>The human signs</b>Divergence and convergence are triggered by the person. The AI proposes and stops.</div>
+    <div><b><i>7</i>AI writes are visible</b>Every AI write to the vault arrives as a changeset the person reviews.</div>
+    <div><b><i>8</i>Provenance is legible</b>Every file carries <code>author: me / co / ai</code>. My words and generated words never blur.</div>
+  </div>
+  <div class="note"><b>Why there is no window.</b> Views only read files, so the files are the product. Each step of this page first lights the file being written on the left, then draws it: every screen can answer "which file am I reading".</div>`);
+}
+function viewDiverge(){
+  const opts=[
+    {n:'A',t:'LRU at the API layer',s:'Cache the lineage response per (artist, depth). Cheap, local, easy to invalidate on write.',tag:'premise: lineage rarely changes'},
+    {n:'B',t:'Neo4j result cache',s:'Let the database keep hot subgraphs. No code in the API, but invalidation is opaque.',tag:'premise: the database is the only writer'},
+    {n:'C',t:'Precomputed timeline per artist',s:'Materialise the whole timeline nightly. Fastest reads; stale for a day.',tag:'premise: a day of staleness is fine'}];
+  setFocus('You confirm, then the AI diverges','Three options that differ in premise, not three variants of one idea',`
+  <div class="opts">${opts.map(o=>`<button class="opt ${S.choice===o.n?'on':''}" data-n="${o.n}"><span class="n">${o.n}</span><span><b>${esc(o.t)}</b><span>${esc(o.s)}</span></span><span class="tag">${esc(o.tag)}</span></button>`).join('')}</div>
+  <div class="verbs"><span class="on">choose</span><span>confirm</span><span>ask</span><span>merge</span><span>approve</span></div>
+  <p style="color:var(--muted);font-size:12.5px">The AI recommends A because the lineage graph changes rarely, and then stops (invariant 6). Pick one to see what the human verb writes.</p>
+  <div id="chosen"></div>`);
+  $$('.opt').forEach(b=>b.onclick=()=>{ S.choice=b.dataset.n; $$('.opt').forEach(x=>x.classList.toggle('on',x.dataset.n===S.choice)); $('#chosen').innerHTML=`<div class="note"><b>Chosen: ${S.choice}.</b> One line is appended to the session's card under <em>Decided</em>, with the two rejected premises under <em>Still open</em>. Nothing is written to the vault yet; the card is drafted at Stop.</div>`; toast('Verb: choose', 'Recorded in this session; nothing in vault/ changed.'); });
+}
+function viewConverge(){
+  setFocus('Convergence: the logic you did not say','The AI writes down the two assumptions behind your choice and queues them for you',`
+  <div class="doc">
+    <h4>What you did not say out loud</h4>
+    <ul><li>You are treating the lineage graph as append-mostly. If artists get merged or split, LRU invalidation needs a key change.</li><li>You chose per-request caching over per-artist materialisation, which means the 200 ms budget must hold on a cold cache.</li></ul>
+    <h4>Waiting for you</h4>
+    <ul><li><b>confirm</b> · the two assumptions above</li><li><b>ask</b> · should merges invalidate by artist id or by subgraph?</li></ul>
+  </div>
+  <div class="verbs"><span>choose</span><span class="on">confirm</span><span class="on">ask</span><span>merge</span><span>approve</span></div>
+  <div class="note"><b>Five verbs and no sixth.</b> confirm · choose · ask · merge · approve. Every human touch in Asteria is one of these, so a sidecar can log them and a view can count them. The AI never gets to "decide".</div>`);
+}
+function viewChangeset(){
+  setFocus('/inbox · a pull request to the vault','Five destinations; the trust level is the colour',`
+  <div class="cs" id="cs">
+    <div class="card"><div class="src">Voice memo 09-21 · Neo4j's GDS library has community detection; Artopath's genre clustering could use it instead of hard-coding by tag.</div><div class="to">→ <b>notes/artopath-genre-clustering.md</b> new · your words kept, AI adds frontmatter and links</div><span class="trust split">review · split</span><div class="links"><span>[[graph-databases]]</span><span>[[artopath]]</span></div></div>
+    <div class="card"><div class="src ext">Chat paste 09-21 · forwarded article "Four caching patterns for graph queries"</div><div class="to">→ <b>wiki/graph-databases.md</b> append a Caching section · original saved to raw/</div><span class="trust auto">auto · wiki</span><div class="links"><span>[[cache-invalidation]]</span></div></div>
+    <div class="card"><div class="src">Voice memo 09-22 · genres are communities that emerge, not labels we stick on.</div><div class="to">→ <b>sparks/community-detection.md</b> candidate · you confirm the one line</div><span class="trust line">confirm one line</span><div class="links"><span>[[community-detection]]</span></div></div>
+    <div class="card"><div class="src">Chat paste 09-22 · "I still do not understand how CDN cache layers invalidate."</div><div class="to">→ <b>briefs/b-0922-learn-cdn-cache.md</b> a learn side quest, opens with what you already know</div><span class="trust learn">learn · side quest</span><div class="links"><span>[[cdn-cache-layers]]</span></div></div>
+    <div class="card"><div class="src">Chat paste 09-22 · for the interview: explain harness versus model in one sentence.</div><div class="to">→ <b>cards/c-0918-okr-review.md</b> attached to the running project, not the wiki</div><span class="trust split">review · attach</span><div class="links"><span>project: work</span></div></div>
+  </div>
+  <div class="acts"><button class="btn primary" id="approveAll">Approve all</button><button class="btn" id="approveOne">Approve the first only</button></div>
+  <div class="note"><b>Routing rule.</b> Your own thoughts → notes/, verbatim. Other people's content → raw/ then compiled into wiki/. Thoughts about running work → that project's card, not the wiki. Things you learned → a spark candidate you confirm in one line. The colours say how much the AI was trusted with each.</div>`);
+  $('#approveAll').onclick=()=>{ applyChangeset(); $$('#cs .card').forEach(c=>c.classList.add('ok')); $('#approveAll').disabled=true; $('#approveOne').disabled=true; toast('Verb: approve','5 writes landed. Each file carries input / words.'); };
+  $('#approveOne').onclick=()=>{ $$('#cs .card')[0].classList.add('ok'); toast('Verb: approve','1 of 5. The rest stay in the changeset.'); };
+}
+function stars(){
+  const P=[{id:'artopath',x:200,y:90,label:'artopath'},{id:'work',x:540,y:80,label:'work'},{id:'learning',x:420,y:200,label:'learning'}];
+  const N=[{id:'c-0918',p:'work',x:600,y:140},{id:'c-0919',p:'artopath',x:120,y:150},{id:'c-0920',p:'artopath',x:200,y:170},{id:'c-0921',p:'artopath',x:290,y:140},{id:'b-0921',p:'artopath',x:330,y:70,parent:'c-0921',dash:true},{id:'c-0922',p:'learning',x:470,y:250,parent:'c-0921',learn:true}];
+  const pos=id=>N.find(n=>n.id===id)||P.find(p=>p.id===id);
+  let h=`<svg viewBox="0 0 720 300">`;
+  for(const n of N){ const a=pos(n.p); h+=`<line x1="${a.x}" y1="${a.y}" x2="${n.x}" y2="${n.y}" stroke="var(--line)"/>`; if(n.parent){ const b=pos(n.parent); h+=`<line x1="${b.x}" y1="${b.y}" x2="${n.x}" y2="${n.y}" stroke="var(--gold)" stroke-dasharray="4 4"/>`; } }
+  for(const p of P){ h+=`<g class="pt" data-s="${p.id}"><path transform="translate(${p.x},${p.y})" d="M0,-12 L3,-3 L12,0 L3,3 L0,12 L-3,3 L-12,0 L-3,-3 Z" fill="var(--star)"/><text x="${p.x}" y="${p.y-18}" text-anchor="middle" font-size="12" fill="var(--muted)">${p.label}</text></g>`; }
+  for(const n of N){ h+=`<g class="pt" data-s="${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${n.learn?7:6}" fill="${n.dash?'none':'var(--cyan)'}" stroke="${n.learn?'var(--blue)':'var(--cyan)'}" stroke-width="2"/><text x="${n.x}" y="${n.y+20}" text-anchor="middle" font-size="10.5" fill="var(--faint)">${n.id}</text></g>`; }
+  return h+`</svg>`;
+}
+function timeline(){
+  const rows=[['09-18','c-0918 · work · OKR review',''],['09-19','c-0919 · artopath · lineage graph',''],['09-20','c-0920 · artopath · API draft',''],['09-21','c-0921 · artopath · front-end timeline',''],['09-21','b-0921 · side quest (quick) · caching strategy → parent c-0921','b'],['09-22','c-0922 · learn · CDN cache layers → parent c-0921','b']];
+  return `<div class="tl">${rows.map(r=>`<div class="${r[2]}"><span>${r[0]}</span><span>${esc(r[1])}</span></div>`).join('')}</div>`;
+}
+function viewChron(){
+  setFocus('Chronicle','Drawn mechanically from the project and parent fields of cards/, no inference',`
+  <div class="smode"><button data-m="stars" aria-pressed="${S.mode==='stars'}">Star map</button><button data-m="tl" aria-pressed="${S.mode==='tl'}">Timeline</button></div>
+  <div id="chronBody">${S.mode==='stars'?`<div class="starwrap">${stars()}</div>`:timeline()}</div>
+  <div class="scard" id="scard"><p style="color:var(--faint)">Click a dot to read its card. Star = a project you opened, dot = a session, dashed line = a side quest, blue ring = a learning session.</p></div>
+  <div class="note"><b>Is this one thing or three?</b> Three Artopath sessions and two branches hang off one star; the picture answers it without an AI summarising anything. If this view disappeared tomorrow, a grep over parent fields would replace it. The truth is the cards.</div>`);
+  $$('.smode button').forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;viewChron();});
+  $$('#chronBody .pt').forEach(g=>g.onclick=()=>{ const id=g.dataset.s; const map={'c-0919':'chronicle/cards/c-0919-artopath-lineage-graph.md','c-0920':'chronicle/cards/c-0920-artopath-api-draft.md','c-0921':'chronicle/cards/c-0921-artopath-timeline.md','b-0921':'chronicle/briefs/b-0921-cache-strategy.md','c-0922':'chronicle/cards/c-0922-learn-cdn-cache.md','c-0918':'chronicle/cards/c-0918-okr-review.md'}; const p=map[id]; const f=p&&FS[p]; $('#scard').innerHTML= f? `<p><b>${esc(p.split('/').pop())}</b></p>${fmHTML(f.fm)}<div class="doc" style="padding:8px 12px">${f.body}</div>` : `<p style="color:var(--faint)">${esc(id)} is a project, not a session. Its sessions are the dots around it.</p>`; });
+}
+function viewGate(){
+  setFocus('/gate · triage and pause','A skill you call when you want to converge; invisible otherwise',`
+  <div class="counters"><div>side quests escalated this session<b>${S.gate} / 1</b></div><div>pending pool<b>${S.pool} / 3</b></div><div>order<b style="font-size:12px;font-family:var(--sans);font-weight:400;color:var(--muted)">verdict &gt; explore &gt; quick &gt; learn-for-its-own-sake</b></div></div>
+  <div class="gate">
+    <div class="h"></div><div class="h">one-off</div><div class="h">will recur</div>
+    <div class="h">low stakes</div><div>hand it to the AI</div><div>three sentences, then move on</div>
+    <div class="h">high stakes</div><div>three sentences + material to check it, no study</div><div class="hot">escalate to a side quest (the only entrance)<br><small style="color:var(--muted)">this time: CDN cache layers → learn</small></div>
+  </div>
+  <div class="doc"><h4>Pause protocol · frozen now: "caching strategy"</h4><ul><li>Inside the frozen scope (the response cache of <code>/api/lineage</code>): the AI may not advance</li><li>Outside it (the front-end timeline component): the AI must keep working</li><li>At the frozen node itself: the AI only prepares material to help you check: three options differing in premise, one recommendation, then stop</li></ul></div>
+  <h3 style="margin-top:16px;font-size:15px">Permission tiers by real impact</h3>
+  <div class="tiers">
+    <div><span>memory edits</span><span>a card line, a spark state, a wikilink</span><span>reversible · changeset</span></div>
+    <div><span>vault writes</span><span>new notes, wiki appends, decision records</span><span>batch approve</span></div>
+    <div class="ask"><span>external writes</span><span>push to GitHub, send, publish, pay</span><span>ask every time</span></div>
+  </div>
+  <div class="note"><b>Recurrence is the gate, not risk.</b> A risky one-off gets a careful answer and moves on. Only what will come back is worth the person's study time. The caps are set for the person's attention, not for the number of branches.</div>`);
+}
+function viewSelf(){
+  const rows=[['program/core.md',100,'every session'],['sparks/_index.md',96,'injected'],['skills/inbox.md',41,'on /inbox'],['skills/side-quest.md',33,'on /side-quest'],['skills/gate.md',8,'on /gate'],['program/preferences.md',100,'every session'],['rules/no-advisory-warnings.md',0,'orphan']];
+  setFocus('How the system knows itself','Load traces are coverage for prompts; an edge nobody reads is not an edge',`
+  <div class="bars">${rows.map(r=>`<div class="${r[1]===0?'orphan':''}"><span>${esc(r[0])}</span><span class="bar"><i data-w="${r[1]}"></i></span><span>${r[1]}%</span></div>`).join('')}</div>
+  <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Share of the last 30 days' sessions in which the file was actually loaded into a prompt. Measured from <code>ledger.jsonl</code>, not declared.</p>
+  <div class="trio">
+    <div class="box"><b>Three kinds of edge</b><span>reference (a file names another) · call (a skill invokes a tool) · write-set (a session touched a path). Only the last two are observed; the first is a claim.</span></div>
+    <div class="box"><b>Reverse-derived edges</b><span>Self-declared dependency lists had zero readers. Now in-edges are derived from who actually loaded what, and a rule with no readers fails an orphan gate.</span></div>
+  </div>
+  <div class="note"><b>Truth lives on the consumer side.</b> A rule exists only if some prompt loads it. In the private workbench this was measured once and found that most of the context window was tool output and most skills had not been loaded in a month. The only falsifier left is a behaviour A/B: does the session act differently with the rule than without it?</div>`);
+  requestAnimationFrame(()=>$$('.bars .bar i').forEach(i=>i.style.width=i.dataset.w+'%'));
+}
+function viewScore(){
+  setFocus('Month end · four compounding criteria','There is no stop rule. This stands in for one.',`
+  <div class="score">
+    <div><span>Future sessions are more relevant</span><small>Cards injected at SessionStart that you used without deleting</small><b>7/10</b></div>
+    <div><span>Answers fit me better</span><small>Preferences in program/ violated, compared with last month</small><b>−40%</b></div>
+    <div><span>Learning explains better</span><small>Learn side quests that opened with "what you already know" and skipped the repeat</small><b>3/4</b></div>
+    <div><span>I can review what I already know</span><small>Entries marked known in _index.md that were injected and used this month</small><b>5/12</b></div>
+  </div>
+  <div class="note"><b>Next month's work is chosen by these four numbers.</b> Only the lowest one earns a cherry (a notch view, a reactive document). The numbers here are invented; the format is real.</div>`);
+}
+function viewOpen(){
+  setFocus('What this demo assumed for you','Decisions still open in the design, and the answer this page picked',`
+  <div class="folders">
+    <div class="folder"><h4>The cheap model writes the card</h4><p>Step 8's card was drafted by a small API model. Without a key, the Stop hook only assembles the skeleton from rules (file list + last time's Next) and leaves Decided / Learned empty for you.</p></div>
+    <div class="folder"><h4>Follow-ups do not count against the gate; learning does</h4><p>The quick side quest in step 6 left the counter alone; the learn side quest in step 12 moved it.</p></div>
+    <div class="folder"><h4>Inbox runs when you say so</h4><p>The alternative is a daily changeset waiting for you every morning. This page chose on-demand.</p></div>
+    <div class="folder"><h4>Your words stay verbatim</h4><p>Notes keep your original wording and the AI only adds structure. The alternative, letting the AI rewrite them into tidy wiki pages, was rejected here.</p></div>
+    <div class="folder"><h4>author has three values</h4><p>me / co / ai, on two axes: input and words. Whether three is enough is still open.</p></div>
+  </div>
+  <div class="note warn"><b>The counter-argument.</b> This page draws "no window" as a window. If what you want after watching is the window itself, then the window is not a cherry: build it as the first front end, but keep it reading the same files.</div>
+  <p style="margin-top:14px;font-size:12.5px;color:var(--muted)">Long-form text: <a href="https://github.com/doriru89/asteria#readme">README</a> · <a href="https://github.com/doriru89/asteria/blob/main/docs/00-the-bet.md">the bet</a> · <a href="https://github.com/doriru89/asteria/blob/main/docs/02-architecture.md">architecture</a> · <a href="https://github.com/doriru89/asteria/blob/main/docs/04-human-in-the-loop.md">human in the loop</a> · <a href="https://github.com/doriru89/asteria/blob/main/docs/06-self-knowledge.md">self-knowledge</a></p>`);
+}
+
+/* ---------------- steps ---------------- */
+const STEPS=[
+{t:'The bet',n:'Two curves compound when you work with AI daily. Asteria exists so the second one climbs: the person gets stronger, not only the model.',run:async()=>{ host(null,''); S.choice=null; viewBet(); hint('No session yet.'); }},
+{t:'Three folders',n:'The whole structure is on the left. You can read it, manage it by hand, and point at the exact file when an AI suggests a change.',run:async()=>{ host(null,''); viewIntro(); hint('No session yet.'); }},
+{t:'Open a session in Claude Code',n:'The SessionStart hook injects the latest cards and the spark index. You did nothing.',run:async()=>{ host('claude','artopath · wire the timeline'); mark('chronicle/cards/c-0920-artopath-api-draft.md','read'); mark('chronicle/cards/c-0919-artopath-lineage-graph.md','read'); mark('vault/sparks/_index.md','read'); mark('program/core.md','read'); say('sys','<b>SessionStart · injected</b>2 cards (artopath) · sparks/_index.md (430 tokens) · program/core.md'); await wait(500); say('you','Wire /api/lineage to the front-end timeline.'); await wait(500); say('ai','Last time (c-0920) you decided on three levels with adjustable depth and left caching open. I will start from the endpoint contract in DR-018.'); ledger('{"ts":"09-21T10:02","session":"c-0921","agent":"claude-code","event":"start","intent":"wire the timeline"}'); hint('Claude Code and Codex read the same cards. The adapter only translates hook payloads.'); openFile('chronicle/cards/c-0920-artopath-api-draft.md'); }},
+{t:'The ledger grows while you work',n:'PostToolUse records only paths. Which files the session touched, the host already shows; Asteria does not redraw it.',run:async()=>{ say('ai','Created <span class="cmd">src/timeline/LineageTimeline.tsx</span>, modified <span class="cmd">src/api/lineage.ts</span>.'); hfile('src/timeline/LineageTimeline.tsx','n'); hfile('src/api/lineage.ts','m'); ledger('{"ts":"09-21T10:12","session":"c-0921","agent":"claude-code","event":"write","path":"src/timeline/LineageTimeline.tsx"}'); ledger('{"ts":"09-21T10:12","session":"c-0921","agent":"claude-code","event":"write","path":"src/api/lineage.ts"}'); openFile('chronicle/ledger.jsonl', `<div class="note"><b>The transcript is not copied.</b> Each host keeps its own transcript locally; the ledger keeps the path. Provenance (+ created, ± modified) is derived from these lines.</div>`); hint('Nothing to approve: paths are not decisions.'); }},
+{t:'You confirm, then the AI diverges',n:'Divergence is human-triggered. Three options that differ in premise, one recommendation, then the AI stops.',run:async()=>{ say('ai','The cache is still open from c-0920. <span class="q">Want me to diverge?</span>'); await wait(400); say('you','Yes. Three options, different premises.'); await wait(500); viewDiverge(); hint('Verb: choose. The AI may recommend; it may not decide.'); }},
+{t:'Cut a side quest',n:'/side-quest writes a capsule of at most 80 lines to briefs/. This one is quick: it does not touch the gate.',run:async()=>{ say('you','<span class="cmd">/side-quest quick</span> just the caching question, option A versus B.'); await wait(500); put('chronicle/briefs/b-0921-cache-strategy.md','ai',{type:'brief',kind:'quick',parent:'c-0921-artopath-timeline',status:'open'},`<h4>Question</h4><p class="me">LRU at the API layer or a Neo4j result cache, for a lineage graph that changes rarely?</p><h4>Context carried over</h4><ul><li>DR-018: 200 ms budget, default depth 3</li><li>known · [[graph-traversal-depth]]</li></ul><h4>Not carried over</h4><p>The timeline component, the artist disambiguation thread.</p>`,'new'); ledger('{"ts":"09-21T10:40","session":"c-0921","agent":"claude-code","event":"write","path":"chronicle/briefs/b-0921-cache-strategy.md"}'); say('sys','<b>/side-quest</b>capsule written · 31 lines · parent c-0921'); openFile('chronicle/briefs/b-0921-cache-strategy.md',`<div class="note"><b>Just enough context.</b> The capsule names what came with it and what did not. A fresh session reads only this file.</div>`); hint('The main line keeps going. The branch has its own file.'); }},
+{t:'Open the capsule in Codex, fresh',n:'No shared context: the new session reads one file. The hosts are interchangeable because the files are the interface.',run:async()=>{ host('codex','side quest · caching'); say('you','<span class="cmd">@chronicle/briefs/b-0921-cache-strategy.md</span> follow the question in there.'); mark('chronicle/briefs/b-0921-cache-strategy.md','read'); await wait(600); say('ai','Given a rarely-changing graph and a 200 ms budget on a cold cache, A (LRU at the API layer) with a 7-day TTL keyed by (artist, depth). Invalidate on artist merge.'); await wait(400); say('you','Take it.'); ledger('{"ts":"09-21T11:05","session":"c-0921b","agent":"codex","event":"start","parent":"c-0921"}'); viewConverge(); hint('Codex ran this branch; the capsule and the card are the same markdown Claude Code reads.'); }},
+{t:'The session ends: the card writes itself',n:'Stop hook → a cheap model reads the plan, the tasks and the ledger, never the transcript. You change one line and confirm.',run:async()=>{ host('claude','artopath · wire the timeline'); say('ai','Timeline component wired. Cache per the side quest: LRU + 7-day TTL.'); await wait(500); say('sys','<b>Stop · drafting the card</b>input: the plan, the task panel, 4 ledger lines, the branch result'); await wait(600); put('chronicle/cards/c-0921-artopath-timeline.md','co',{type:'card',project:'artopath',host:'claude-code',input:'ai',words:'ai',outputs:'2 files'},`<h4>Decided</h4><ul><li>Cache: LRU at the API layer, 7-day TTL, keyed by (artist, depth) <small style="color:var(--faint)">← from c-0921b</small></li></ul><h4>Still open</h4><ul><li>Invalidate by artist id or by subgraph on merge?</li></ul><h4>Next</h4><ul><li class="me">Hook the timeline to real Artopath data, not fixtures <small style="color:var(--cyan)">← your edit</small></li></ul><h4>Learned</h4><ul><li>[[cache-invalidation]] touched again · known</li></ul>`,'new'); FS['vault/decisions/DR-018-lineage-api.md'].body=FS['vault/decisions/DR-018-lineage-api.md'].body.replace('<h4>To do</h4><ul><li>Caching strategy</li></ul>','<h4>Caching</h4><p>LRU at the API layer, 7-day TTL. <small style="color:var(--faint)">source: c-0921b</small></p>'); mark('vault/decisions/DR-018-lineage-api.md','mod'); ledger('{"ts":"09-21T12:30","session":"c-0921","agent":"claude-code","event":"stop","card":"chronicle/cards/c-0921-artopath-timeline.md"}'); openFile('chronicle/cards/c-0921-artopath-timeline.md',`<div class="note"><b>A human head and a human tail.</b> You wrote the intent at the start and edited one line at the end. Everything in between was AI, and the card says so: input ai, words ai, one line marked me.</div>`); hint('The card is read by the next session. The transcript stays where the host put it.'); }},
+{t:'Two days later the inbox has four entries',n:'Chat pastes and voice memos land in vault/inbox.md as they came. Nothing is tidied at capture time.',run:async()=>{ host(null,''); FS['vault/inbox.md'].body=`<p class="me">09-21 voice memo · Neo4j's GDS library has community detection; Artopath's genre clustering could use it instead of hard-coding by tag.</p><p class="ext">09-21 chat paste · forwarded article "Four caching patterns for graph queries" (link + two screenshots)</p><p class="me">09-22 voice memo · genres are communities that emerge, not labels we stick on.</p><p class="me">09-22 chat paste · I still do not understand how CDN cache layers invalidate. Also, for the interview: explain harness versus model in one sentence.</p>`; mark('vault/inbox.md','mod'); openFile('vault/inbox.md',`<div class="note"><b>Zero-friction capture.</b> The cost of tidying is what kills capture, so capture does not tidy. Sorting is a separate rhythm you trigger.</div>`); hint('No session needed. The file is the inbox.'); }},
+{t:'Say "/inbox"',n:'The skill splits, groups by topic, finds existing notes and emits a changeset: a pull request to the vault, trust level shown as colour.',run:async()=>{ host('claude','inbox · 09-22'); say('you','<span class="cmd">/inbox</span>'); mark('vault/inbox.md','read'); mark('vault/sparks/_index.md','read'); mark('vault/wiki/graph-databases.md','read'); await wait(500); say('ai','Split into 5. One note, one wiki append, one spark candidate, one learn side quest, one attached to a running project. Changeset is in the focus pane.'); viewChangeset(); hint('Verb: approve. Nothing lands until you do.'); }},
+{t:'After approval: files land, author on two axes',n:'input says whose idea; words says who wrote the text. Your sentence touched up by AI is me / ai.',run:async()=>{ if(!FS['vault/notes/artopath-genre-clustering.md']) applyChangeset(); openFile('vault/notes/artopath-genre-clustering.md', `<div class="note"><b>Trust the AI, but keep the line visible.</b> Teal is your input, gold is the AI's. Across the whole vault you can filter on either axis, and the two never blur.</div>`); hint('Four of five writes were your own thoughts. The wiki append was the only fully AI-authored one.'); }},
+{t:'A learn side quest starts from what you already know',n:'Learn kind: it enters the gate (1/1). The capsule opens with the cells already marked known in _index.md, so the explanation does not start from zero.',run:async()=>{ host('codex','learn · CDN cache layers'); say('you','<span class="cmd">@chronicle/briefs/b-0922-learn-cdn-cache.md</span>'); mark('chronicle/briefs/b-0922-learn-cdn-cache.md','read'); await wait(500); say('ai','You already know cache invalidation and you just chose an API-layer LRU. So the only new thing is the hierarchy: edge → regional → origin, and purge versus TTL. Three minutes.'); await wait(500); say('ai','Learning for a verdict: should Artopath put the lineage endpoint behind a CDN? <span class="q">Recommendation: no, not at this traffic</span>.'); openFile('chronicle/briefs/b-0922-learn-cdn-cache.md', `<div class="note"><b>Learn for a decision, not for its own sake.</b> The brief names the verdict the learning serves. When it ends, the spark index gains one known cell and the main line gets one line in Still open resolved.</div>`); hint('Gate 1/1: one escalation per session. The cap is on your attention.'); }},
+{t:'/gate · you call it when you want to converge',n:'Triage 2×2 and the pause protocol, kept as a skill. This step only happens because you invoked it.',run:async()=>{ host('claude','artopath · wire the timeline'); say('you','<span class="cmd">/gate</span>'); S.gate=1; S.pool=2; counters(); viewGate(); hint('The gate counts are rules in program/, not features of a window.'); }},
+{t:'Chronicle: is this one thing or three?',n:'Star = a project you opened, dot = a session, line = the parent field. Drawn mechanically, nothing inferred.',run:async()=>{ host(null,''); S.mode='stars'; viewChron(); hint('Click any dot to read its card.'); }},
+{t:'From a document back to the conversation',n:'DR-018 carries source_session in its frontmatter; the caching paragraph names c-0921b. Thirty seconds, no search.',run:async()=>{ openFile('vault/decisions/DR-018-lineage-api.md', `<div class="acts"><button class="btn primary" id="back">Find the conversation that produced this</button></div><div class="note"><b>Provenance is never typed by hand.</b> source_session is filled by the Stop hook; the paragraph-level source comes from the card writer. Both are derived from the ledger.</div>`); $('#back').onclick=()=>{ host('codex','side quest · caching'); say('you','<span class="cmd">@chronicle/briefs/b-0921-cache-strategy.md</span> follow the question in there.'); say('ai','Given a rarely-changing graph and a 200 ms budget on a cold cache, A (LRU at the API layer) with a 7-day TTL …'); say('sys','<b>Reopened from DR-018 → c-0921b</b>transcript path from ledger.jsonl'); toast('Found in 1 hop','DR-018 → source_session → ledger → transcript path'); }; hint('Press the button in the focus pane.'); }},
+{t:'How the system knows itself',n:'Which rules were actually loaded into prompts, measured from the ledger. A rule nobody reads fails the orphan gate.',run:async()=>{ host(null,''); viewSelf(); hint('Coverage for prompts: declared edges are claims; loaded edges are facts.'); }},
+{t:'Month end: four compounding criteria',n:'There is no stop rule. These four numbers decide which part of the design earns attention next month.',run:async()=>{ viewScore(); hint('Computed from cards/ and the ledger. You fill nothing in.'); }},
+{t:'What this demo assumed for you',n:'Five open decisions in the design. This page chose an answer for each. Read, then go back and change any step.',run:async()=>{ viewOpen(); hint('The long-form text is in the repository.'); }},
+];
+function applyChangeset(){
+  put('vault/notes/artopath-genre-clustering.md','co',{type:'note',project:'artopath',source:'inbox 09-21 voice memo',input:'me',words:'ai'},`<h4>Genre clustering by community detection</h4><p class="me">Neo4j's GDS library has community detection; Artopath's genre clustering could use it instead of hard-coding by tag.</p><p class="ai">AI added: both Louvain and Leiden are available in GDS; Leiden guarantees connected communities. Related: [[graph-databases]], [[artopath]].</p>`,'new');
+  FS['vault/wiki/graph-databases.md'].body+=`<h4>Caching</h4><p class="ai">Four patterns: query-result cache, materialised subgraphs, application-layer LRU, CDN edge. Source: chat paste 09-21 (original in raw/).</p>`; mark('vault/wiki/graph-databases.md','mod');
+  put('vault/raw/2026-09-21-four-caching-patterns.md','ai',{type:'raw',source:'chat paste'},`<p class="ext">Forwarded article, stored as received.</p>`,'new');
+  put('vault/sparks/community-detection.md','co',{type:'spark',state:'new',input:'me',words:'me'},`<p class="me">One line: genres are communities that emerge, not labels we stick on.</p>`,'new');
+  put('chronicle/briefs/b-0922-learn-cdn-cache.md','ai',{type:'brief',kind:'learn',parent:'c-0921-artopath-timeline',gate:'1/1',status:'open'},`<h4>What to learn</h4><p class="me">How CDN cache layers invalidate; whether Artopath should use one.</p><h4>What you already know</h4><ul><li>known · cache-invalidation</li><li>known · API-layer LRU (decided in c-0921b)</li></ul><h4>Learning for a verdict</h4><p>Should the lineage endpoint sit behind a CDN at current traffic?</p>`,'new');
+  put('chronicle/cards/c-0922-learn-cdn-cache.md','co',{type:'card',project:'learning',host:'codex',parent:'c-0921-artopath-timeline',input:'ai',words:'ai'},`<h4>Decided</h4><ul><li>No CDN for the lineage endpoint at current traffic</li></ul><h4>Learned</h4><ul><li>[[cdn-cache-layers]] · unknown → known</li></ul>`,'new');
+  FS['chronicle/cards/c-0918-okr-review.md'].body+=`<h4>Attached from inbox 09-22</h4><p class="me">For the interview: explain harness versus model in one sentence.</p>`; mark('chronicle/cards/c-0918-okr-review.md','mod');
+  FS['vault/sparks/_index.md'].body=FS['vault/sparks/_index.md'].body.replace('<li>new · [[cypher-basics]]</li>','<li>new · [[cypher-basics]]</li><li>new · [[community-detection]]</li>'); mark('vault/sparks/_index.md','mod');
+  FS['vault/inbox.md'].body=`<p class="me">(cleared. 4 entries routed; the original paste is in raw/.)</p>`; mark('vault/inbox.md','mod');
+  S.gate=1; S.pool=1; counters();
+}
+
+/* ---------------- runner ---------------- */
+let cur=-1, busy=false;
+async function go(i){ if(busy||i<0||i>=STEPS.length) return; busy=true; marks={}; cur=i; const s=STEPS[i]; $('#stepT').textContent=`${i+1} / ${STEPS.length} · ${s.t}`; $('#stepN').textContent=s.n; renderDots(); $('#prev').disabled=i===0; $('#next').disabled=i===STEPS.length-1; await s.run(); busy=false; }
+function renderDots(){ $('#dots').innerHTML=STEPS.map((_,i)=>`<button data-i="${i}" class="${i<cur?'done':i===cur?'cur':''}" aria-label="Step ${i+1}" title="${esc(STEPS[i].t)}"></button>`).join(''); $$('#dots button').forEach(b=>b.onclick=()=>jump(+b.dataset.i)); }
+async function jump(i){ if(busy||i<0||i>=STEPS.length) return; busy=true; window.__fast=true; seed(); S.gate=0;S.pool=0;S.ledger=[];S.choice=null; counters(); for(let k=0;k<=i;k++){ await goQuiet(k); } window.__fast=false; busy=false; renderDots(); }
+async function goQuiet(k){ marks={}; cur=k; const s=STEPS[k]; $('#stepT').textContent=`${k+1} / ${STEPS.length} · ${s.t}`; $('#stepN').textContent=s.n; $('#prev').disabled=k===0; $('#next').disabled=k===STEPS.length-1; await s.run(); }
+$('#next').onclick=()=>go(cur+1); $('#prev').onclick=()=>jump(cur-1);
+document.addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT') return; if(e.key==='ArrowRight') go(cur+1); if(e.key==='ArrowLeft') jump(cur-1); });
+$('#hCodex').onclick=$('#hClaude').onclick=()=>toast('Host','This column stands in for Claude Code and Codex. Asteria does not own either.');
+$('#theme').onclick=()=>{ const r=document.documentElement; const dark=r.dataset.theme==='dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches); r.dataset.theme=dark?'light':'dark'; $('#theme').textContent=dark?'Dark':'Light'; };
+seed(); counters(); go(0);
+</script>
+</body>
+</html>

@@ -99,6 +99,12 @@ footer { margin-top:8vh; background:var(--ink); color:var(--peach); }
 .foot__links a.primary { background:var(--gold); color:var(--ink); box-shadow:4px 4px 0 var(--peach); }
 .foot__base { max-width:1040px; margin:0 auto; padding:18px 24px 26px; display:flex; justify-content:space-between; gap:16px; border-top:1px solid rgba(255,241,235,.12); font-family:'JetBrains Mono',monospace; font-size:11px; opacity:.6; }
 
+.cta { display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
+.cta a { display:inline-block; padding:12px 20px; border-radius:12px; font-weight:700; text-decoration:none; font-size:15px; }
+.cta .pri { background:var(--ink); color:var(--peach); box-shadow:0 6px 20px rgba(30,15,60,.25); }
+.cta .sec { background:var(--ivory); color:var(--ink); box-shadow:0 0 0 1.5px rgba(212,160,66,.45); }
+.cta a:hover { transform:translateY(-1px); }
+
 @media (max-width:760px) {
   .nav__inner { min-width:0; gap:1rem; padding:.6rem 1rem; } .nav__links { gap:1rem; }
   .guar { grid-template-columns:1fr; }
@@ -113,6 +119,7 @@ footer { margin-top:8vh; background:var(--ink); color:var(--peach); }
   <div class="nav__inner">
     <a href="#top" class="nav__logo">ASTERIA</a>
     <div class="nav__links">
+      <a href="demo.html">Demo</a>
       <a href="#thesis">Thesis</a>
       <a href="#docs">Docs</a>
       <a href="https://github.com/doriru89/asteria" target="_blank" rel="noopener">GitHub<span class="ext">↗</span></a>
@@ -125,7 +132,8 @@ footer { margin-top:8vh; background:var(--ink); color:var(--peach); }
   <section id="hero" class="wrap">
     <h1>ASTERIA</h1>
     <p class="tag">Agents do the volume. One human signs the decisions.</p>
-    <p class="lede">A personal agent workbench built on Claude Code and run daily by one person. This site is its public shell: the product thesis and the architecture, written up from the working design documents. The code stays private. The ideas are the part worth sharing.</p>
+    <p class="lede">A personal agent workbench built on Claude Code and run daily by one person. The skeleton is a set of stable interfaces and one git folder of plain files; the AIs are replaceable flesh. This site is its public shell: the bet, the architecture and the human-in-the-loop design, written up from the working design records. The code stays private. The ideas are the part worth sharing.</p>
+    <div class="cta"><a class="pri" href="demo.html">Open the interactive demo →</a><a class="sec" href="https://github.com/doriru89/asteria/blob/main/docs/00-the-bet.md">Read the bet</a></div>
     <div class="stats" aria-label="Scale of the private workbench">
       <div class="stat"><b>135</b><span>skills</span></div>
       <div class="stat"><b>37</b><span>subagent roles</span></div>
@@ -147,47 +155,50 @@ footer { margin-top:8vh; background:var(--ink); color:var(--peach); }
   </section>
 
   <section id="ideas" class="block wrap">
-    <p class="kicker">FIVE IDEAS</p>
+    <p class="kicker">SIX IDEAS</p>
     <h2>What carries the design</h2>
     <div class="ideas">
       <div class="idea"><span class="n">01</span><h3>A human signs, by rule not by feel</h3><p>Which decisions reach the human is computed from three inputs: will it recur, how much does it touch, can it be undone. At most one learning side quest per session.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/04-human-in-the-loop.md">Human in the loop</a></div>
-      <div class="idea"><span class="n">02</span><h3>Tiered memory, proposals at the top</h3><p>Session memory is disposable, project memory is working state, persistent memory is canon. Nothing writes to canon directly: agents file proposals, the human approves.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md">Memory and errata</a></div>
+      <div class="idea"><span class="n">02</span><h3>Skeleton and flesh</h3><p>Three folders, two hooks, three skills. Files are the only truth, views only read files, every AI write arrives as a changeset, and every file says whose idea and whose words it holds.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/02-architecture.md">Architecture</a></div>
       <div class="idea"><span class="n">03</span><h3>Errata are checks, not advice</h3><p>A failure that repeats becomes an entry and a write-time check that blocks. A warning that cannot block is theater: blocking fires every time, advisory fires never.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md">Memory and errata</a></div>
       <div class="idea"><span class="n">04</span><h3>Producer is never verifier</h3><p>The agent that wrote it does not grade it. Verification comes from a test run, a fresh context, another model or a human: a signal the producer did not have.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md">Simplicity and search</a></div>
       <div class="idea"><span class="n">05</span><h3>Simplicity is a goal, never a criterion</h3><p>"Is this simple enough?" is banned at the gate. Gates ask only what a command can answer: diff size, exit codes, counts. Simplicity is read off afterwards.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md">Simplicity and search</a></div>
+      <div class="idea"><span class="n">06</span><h3>The system measures what it loads</h3><p>A rule exists only if some prompt loads it. Load traces are coverage for prompts; in-edges are derived from readers, never hand-written; a rule with no readers fails the orphan gate.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/06-self-knowledge.md">Self-knowledge</a></div>
     </div>
   </section>
 
   <section id="map" class="block wrap">
     <p class="kicker">MODULE MAP</p>
-    <h2>Four layers, one vocabulary</h2>
-    <p class="sub">The layer number says where something lives. The organ or port name says which one it is. Dependencies only point down.</p>
+    <h2>Four layers, three folders</h2>
+    <p class="sub">The layer number says where something lives. The organ or port name says which one it is. Dependencies only point down, and the flesh plugs in at L2.</p>
     <div class="map">
-      <div class="layer l0"><span class="lv">L0</span><span class="nm">Constants</span><span class="it"><span class="chip">one config owns every path</span></span></div>
+      <div class="layer l0"><span class="lv">L0</span><span class="nm">Constants</span><span class="it"><span class="chip">eight invariants</span><span class="chip">program/ is the one source of settings</span></span></div>
       <div class="layer l1"><span class="lv">L1</span><span class="nm">Organs</span><span class="it"><span class="chip">memory</span><span class="chip">recall</span><span class="chip">immune</span><span class="chip">spine</span><span class="chip">structure</span></span></div>
       <div class="layer l2"><span class="lv">L2</span><span class="nm">Ports</span><span class="it"><span class="chip">CODE</span><span class="chip">RESEARCH</span><span class="chip">KNOWLEDGE</span><span class="chip">ANALYSIS</span><span class="chip">STUDIO</span><span class="chip">INSPIRATION</span></span></div>
-      <div class="layer l3"><span class="lv">L3</span><span class="nm">Data</span><span class="it"><span class="chip">notes vault</span><span class="chip">session transcripts</span><span class="chip">work items</span><span class="chip">outputs</span></span></div>
+      <div class="layer l3"><span class="lv">L3</span><span class="nm">Data</span><span class="it"><span class="chip">the vault</span><span class="chip">each host's transcripts</span><span class="chip">work items</span><span class="chip">outputs</span></span></div>
     </div>
     <div class="laws">
-      <div><b>LAW 1</b>Dependencies only point downward.</div>
-      <div><b>LAW 2</b>Paths live only in config.</div>
-      <div><b>LAW 3</b>Every contract ships with a check.</div>
-      <div><b>LAW 4</b>Everything enters through the admission gate.</div>
-      <div><b>LAW 5</b>Interfaces are thin and late-bound.</div>
-      <div><b>LAW 6</b>Immunity is per organ.</div>
+      <div><b>FOLDERS</b>program/ settings written once · chronicle/ the ledger and one card per session · vault/ what the notes app opens</div>
+      <div><b>HOOKS</b>SessionStart injects the last cards and the spark index · Stop drafts the closing card · PostToolUse records paths</div>
+      <div><b>SKILLS</b>/side-quest cuts a capsule · /inbox turns pastes into a changeset · /gate triages and pauses</div>
+      <div><b>INVARIANT 1</b>Files are the only truth.</div>
+      <div><b>INVARIANT 6</b>The human signs; divergence and convergence are human-triggered.</div>
+      <div><b>INVARIANT 8</b>Provenance is legible: author is me, co or ai.</div>
     </div>
   </section>
 
   <section id="docs" class="block wrap">
     <p class="kicker">DOCUMENTS</p>
     <h2>Read the design</h2>
-    <p class="sub">Five short pages distilled from the design documents and the five expert reviews (product, architecture, adversarial critic, evaluation, human factors).</p>
+    <p class="sub">Seven short pages: the bet, the September 2026 architecture, and the mechanisms that carried over from the August reviews (product, architecture, adversarial critic, evaluation, human factors).</p>
     <div class="docs">
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/00-the-bet.md"><span class="num">00</span><span><h3>The bet</h3><p>Two compounding curves, what AI makes cheap, three questions instead of a ladder, precedents, three open contradictions</p></span><span class="go">Read →</span></a>
       <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/01-thesis.md"><span class="num">01</span><span><h3>Thesis</h3><p>The problem, the three guarantees, measurable success, sunset conditions</p></span><span class="go">Read →</span></a>
-      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/02-architecture.md"><span class="num">02</span><span><h3>Architecture</h3><p>Four layers, five organs, six ports, six laws, six governance devices</p></span><span class="go">Read →</span></a>
-      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md"><span class="num">03</span><span><h3>Memory and errata</h3><p>Tiered memory, the proposal model, retrieval grading, the recurrence probe</p></span><span class="go">Read →</span></a>
-      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/04-human-in-the-loop.md"><span class="num">04</span><span><h3>Human in the loop</h3><p>The triage gate, the pause protocol, trust per decision class, evidence first</p></span><span class="go">Read →</span></a>
-      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md"><span class="num">05</span><span><h3>Simplicity and search</h3><p>Lagging indicator, diverge/converge/decide, producer ≠ verifier, the rule budget</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/02-architecture.md"><span class="num">02</span><span><h3>Architecture</h3><p>Skeleton and flesh: eight invariants, three folders, the recall stack, the smart inbox, the ritual, seven open decisions</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md"><span class="num">03</span><span><h3>Memory and errata</h3><p>Tiered memory, the inbox as a pull request, author on two axes, Chronicle and Spark, errata as blocking checks</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/04-human-in-the-loop.md"><span class="num">04</span><span><h3>Human in the loop</h3><p>Recurrence is the gate, the pause protocol, five human verbs, changeset trust levels, evidence first</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md"><span class="num">05</span><span><h3>Simplicity and search</h3><p>Lagging indicator, diverge/converge/decide, producer ≠ verifier, /idea, the feedback ladder</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/06-self-knowledge.md"><span class="num">06</span><span><h3>Self-knowledge</h3><p>Three kinds of edge, load traces as coverage, skills without a registry, a taxonomy of facts, prosthetics</p></span><span class="go">Read →</span></a>
     </div>
   </section>
 </main>

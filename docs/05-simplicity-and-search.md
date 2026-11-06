@@ -85,6 +85,35 @@ The philosophy names the conditions under which it stops applying.
 4. **The protocol obeys its own rule budget.** New mechanisms introduced by this document: five. Adding one requires deleting one.
 5. **Ruling is never fully automated.** The final choice of framing is always a person's, because only the person knows what question they wanted to ask.
 
+## /idea: an open-ended building decision
+
+The search discipline above became a procedure in October 2026 for decisions that do not yet have a plan.
+
+1. **Interview down to a one-pager.** The AI asks until the question, the constraints and the success test fit on one page the person signs.
+2. **Fresh agents with different stances.** Each agent gets the one-pager and one stance card (top-down from constraints, bottom-up from existing parts, an external precedent, a deliberately opposed framing). None sees the others.
+3. **Compare.** The results are laid side by side on the criterion the one-pager fixed before generation, with where they agree and where they split.
+4. **Optionally, demo and council.** The two or three survivors are prototyped cheaply and a council of differently-stanced agents critiques each.
+
+There are four stops where the person looks and chooses: after the one-pager, after the stances are picked, after the comparison, and after the demos. The AI never recommends an option unless asked. The procedure exists because an AI handed a framing optimises inside it; the stances are the manufactured scarcity that the failure-boundary section above says the protocol must supply.
+
+## A sidecar example
+
+The software stack behind the workbench follows one rule: each piece runs where it is cheapest and talks over one plain interface. A vault plugin needs similarity search; it does not embed a model. It calls a small local similarity server over HTTP; that server calls a local embedding model. Three processes, one interface each, any of the three replaceable without touching the other two. The same shape holds for the hosts: Claude Code and Codex are processes that read and write files; the adapter translates their hook payloads; nothing else knows which host ran.
+
+## The feedback ladder
+
+Verification is a ladder, and each rung is cheaper and faster than the one above it. The rule is to climb only as far as the change needs.
+
+| Rung | Catches | Cost |
+|---|---|---|
+| types | the wrong shape | seconds, every save |
+| lint | the known bad patterns | seconds, every save |
+| tests | the wrong behaviour | minutes, every commit |
+| screenshot | the wrong look, in the real browser | a minute, every visible change |
+| human | the wrong thing | the person's attention, only at the gate |
+
+The producer-is-not-verifier rule applies at every rung: the signal must come from somewhere the producer could not have faked it. A screenshot taken by the agent that wrote the page is still external evidence; the agent's description of the page is not.
+
 ## The episode this was learned from
 
 The adversarial review of the plan found that the planning protocol had fifteen locked decisions, six amendments, and had shipped zero code over several weeks. The workbench's own errata already recorded this pattern (locking decisions without a step that implements them) at half the size. The response was to apply the rule budget to the protocol itself: the most expensive part of the method (every module written twice, blind, by two fresh agents, then reconciled) was deleted; the one-page resident line replaced "read everything every session"; the first build step was cut from five parts to three. The only addition was one fifteen-line check. A protocol that cannot pass its own rule budget is theater, and the test is: are there more than ten locked rows, more than one page of must-read, any enforcement that has never fired, and an overhead-to-work ratio approaching one to one.
