@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asteria</title>
+<meta name="description" content="Asteria: a personal agent workbench where agents do the volume and one human signs the decisions. Thesis and architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --peach:#FFF1EB; --ink:#1e0f3c; --body:#2d1b40; --dim:#8a7a9a; --gold:#d4a042; --gold-deep:#b07e26;
+  --ivory:rgba(245,243,239,.86);
+  --a1:#e4202e; --a2:#f47920; --a3:#ffb000; --a4:#4caf50; --a5:#2196f3;
+  --stripe:linear-gradient(90deg,var(--a1) 0 20%,var(--a2) 20% 40%,var(--a3) 40% 60%,var(--a4) 60% 80%,var(--a5) 80% 100%);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { background:var(--peach); color:var(--ink); font-family:'Space Grotesk',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+::selection { background:var(--a3); color:var(--ink); }
+a { color:var(--gold-deep); }
+.wrap { max-width:1040px; margin:0 auto; padding:0 24px; }
+.mono { font-family:'JetBrains Mono',monospace; }
+.kicker { display:inline-flex; align-items:center; gap:10px; font-family:'Press Start 2P',monospace; font-size:10px; letter-spacing:.08em; color:var(--body); }
+.kicker::before { content:''; width:40px; height:6px; border-radius:1px; background:var(--stripe); }
+
+/* nav */
+#nav { position:sticky; top:0; z-index:50; display:flex; justify-content:center; padding:16px; }
+.nav__inner { display:flex; align-items:center; justify-content:space-between; gap:2.25rem; padding:.7rem 1.6rem; min-width:420px;
+  background:var(--ivory); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:14px;
+  box-shadow:0 0 0 1.5px rgba(212,160,66,.35), 0 0 0 4px rgba(245,243,239,.7), 0 0 0 5.5px rgba(212,160,66,.2), 0 4px 24px rgba(90,60,20,.10); }
+.nav__logo { position:relative; font-size:.95rem; font-weight:700; letter-spacing:.12em; color:var(--ink); text-decoration:none; padding-bottom:4px; }
+.nav__logo::after { content:''; position:absolute; left:0; right:.12em; bottom:0; height:2px; border-radius:1px; background:var(--stripe); }
+.nav__links { display:flex; gap:1.75rem; }
+.nav__links a { position:relative; font-size:.95rem; font-weight:500; letter-spacing:.05em; color:var(--body); text-decoration:none; padding:4px 0; transition:color .2s; }
+.nav__links a::after { content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px; border-radius:1px; background:var(--stripe); transform:scaleX(0); transform-origin:left; transition:transform .35s cubic-bezier(.2,.8,.2,1); }
+.nav__links a:hover { color:var(--gold-deep); } .nav__links a:hover::after { transform:scaleX(1); }
+.nav__links .ext { font-size:.65em; opacity:.6; margin-left:2px; }
+
+/* hero */
+#hero { padding:12vh 0 8vh; text-align:center; }
+#hero h1 { font-weight:800; font-size:clamp(4rem,12vw,10rem); line-height:.9; letter-spacing:-.03em; }
+#hero .tag { margin-top:1.1rem; font-size:clamp(1rem,2vw,1.35rem); font-weight:500; letter-spacing:.02em; color:var(--gold-deep); }
+#hero .lede { margin:1.6rem auto 0; max-width:40em; font-size:1.05rem; line-height:1.6; color:var(--body); }
+#hero .stats { margin-top:2.2rem; display:flex; justify-content:center; flex-wrap:wrap; gap:12px; }
+.stat { padding:12px 18px; background:var(--ivory); border-radius:12px; box-shadow:0 0 0 1.5px rgba(212,160,66,.35), 0 4px 18px rgba(90,60,20,.08); }
+.stat b { display:block; font-size:1.5rem; font-weight:800; letter-spacing:-.02em; }
+.stat span { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); }
+
+/* sections */
+section.block { padding:7vh 0; }
+.block h2 { margin-top:14px; font-weight:800; font-size:clamp(2rem,5vw,3.4rem); line-height:.98; letter-spacing:-.03em; }
+.block .sub { margin-top:12px; max-width:40em; font-size:1.02rem; line-height:1.6; color:var(--body); }
+blockquote.thesis { margin-top:28px; padding:26px 30px; background:var(--ivory); border-left:6px solid var(--gold); border-radius:0 14px 14px 0;
+  font-size:1.15rem; line-height:1.6; font-weight:500; box-shadow:0 4px 18px rgba(90,60,20,.08); }
+.guar { margin-top:22px; display:grid; gap:14px; grid-template-columns:repeat(3,1fr); }
+.guar div { padding:18px; background:#fff; border-radius:12px; border:2px solid var(--ink); box-shadow:5px 5px 0 var(--gold); }
+.guar b { display:block; font-size:.95rem; margin-bottom:6px; }
+.guar p { font-size:.92rem; line-height:1.5; color:var(--body); }
+
+.ideas { margin-top:26px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.idea { padding:22px; background:var(--ivory); border-radius:14px; box-shadow:0 0 0 1.5px rgba(212,160,66,.3), 0 4px 18px rgba(90,60,20,.08); }
+.idea .n { font-family:'Press Start 2P',monospace; font-size:10px; color:var(--gold-deep); }
+.idea h3 { margin-top:10px; font-size:1.1rem; font-weight:700; letter-spacing:-.01em; }
+.idea p { margin-top:8px; font-size:.95rem; line-height:1.55; color:var(--body); }
+.idea a { display:inline-block; margin-top:10px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; text-decoration:none; border-bottom:2px solid var(--gold); }
+
+/* module map */
+.map { margin-top:26px; display:grid; gap:8px; }
+.layer { display:grid; grid-template-columns:72px 120px 1fr; gap:14px; align-items:center; padding:16px 18px; border-radius:12px; background:#fff; border:2px solid var(--ink); }
+.layer .lv { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--ink); }
+.layer .nm { font-weight:800; letter-spacing:.04em; text-transform:uppercase; font-size:.85rem; }
+.layer .it { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { font-family:'JetBrains Mono',monospace; font-size:11px; padding:4px 9px; border-radius:6px; background:var(--peach); border:1px solid rgba(30,15,60,.25); }
+.layer.l0 { box-shadow:4px 4px 0 var(--a1); } .layer.l1 { box-shadow:4px 4px 0 var(--a3); } .layer.l2 { box-shadow:4px 4px 0 var(--a4); } .layer.l3 { box-shadow:4px 4px 0 var(--a5); }
+.laws { margin-top:22px; display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+.laws div { padding:12px 14px; background:var(--ivory); border-radius:10px; font-size:.92rem; line-height:1.5; }
+.laws b { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold-deep); margin-right:8px; }
+
+/* docs */
+.docs { margin-top:26px; display:grid; gap:12px; }
+.doc { display:grid; grid-template-columns:60px 1fr auto; gap:16px; align-items:center; padding:18px 20px; background:#fff; border:2px solid var(--ink); border-radius:12px; text-decoration:none; color:var(--ink); transition:transform .15s, box-shadow .15s; box-shadow:4px 4px 0 var(--gold); }
+.doc:hover { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--gold); }
+.doc .num { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--gold-deep); }
+.doc h3 { font-size:1.05rem; font-weight:700; }
+.doc p { margin-top:4px; font-size:.9rem; color:var(--body); }
+.doc .go { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+
+/* footer */
+footer { margin-top:8vh; background:var(--ink); color:var(--peach); }
+.stripes { display:flex; flex-direction:column; } .stripes i { display:block; height:7px; }
+.foot__inner { max-width:1040px; margin:0 auto; padding:64px 24px 36px; display:grid; gap:32px; grid-template-columns:1.3fr 1fr; align-items:end; }
+.foot__k { font-family:'Press Start 2P',monospace; font-size:10px; letter-spacing:.08em; color:var(--a3); }
+.foot__t { margin-top:16px; font-weight:800; font-size:clamp(1.8rem,4.5vw,3rem); line-height:.98; letter-spacing:-.03em; }
+.foot__p { margin-top:14px; max-width:36em; line-height:1.55; opacity:.85; }
+.foot__links { list-style:none; display:flex; flex-direction:column; gap:14px; justify-self:end; align-items:flex-end; }
+.foot__links a { display:inline-block; min-width:220px; text-align:center; padding:14px 22px; color:var(--peach); text-decoration:none;
+  font-family:'Press Start 2P',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; border:2px solid var(--gold); box-shadow:4px 4px 0 var(--gold); transition:transform .15s, box-shadow .15s, background .2s; }
+.foot__links a:hover { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--gold); background:rgba(212,160,66,.12); }
+.foot__links a.primary { background:var(--gold); color:var(--ink); box-shadow:4px 4px 0 var(--peach); }
+.foot__base { max-width:1040px; margin:0 auto; padding:18px 24px 26px; display:flex; justify-content:space-between; gap:16px; border-top:1px solid rgba(255,241,235,.12); font-family:'JetBrains Mono',monospace; font-size:11px; opacity:.6; }
+
+@media (max-width:760px) {
+  .nav__inner { min-width:0; gap:1rem; padding:.6rem 1rem; } .nav__links { gap:1rem; }
+  .guar { grid-template-columns:1fr; }
+  .layer { grid-template-columns:56px 1fr; } .layer .it { grid-column:1/-1; }
+  .doc { grid-template-columns:48px 1fr; } .doc .go { display:none; }
+  .foot__inner { grid-template-columns:1fr; } .foot__links { justify-self:start; align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+<nav id="nav" aria-label="Primary">
+  <div class="nav__inner">
+    <a href="#top" class="nav__logo">ASTERIA</a>
+    <div class="nav__links">
+      <a href="#thesis">Thesis</a>
+      <a href="#docs">Docs</a>
+      <a href="https://github.com/doriru89/asteria" target="_blank" rel="noopener">GitHub<span class="ext">↗</span></a>
+      <a href="https://doriru89.github.io/az-portfolio/" target="_blank" rel="noopener">Austin<span class="ext">↗</span></a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+  <section id="hero" class="wrap">
+    <h1>ASTERIA</h1>
+    <p class="tag">Agents do the volume. One human signs the decisions.</p>
+    <p class="lede">A personal agent workbench built on Claude Code and run daily by one person. This site is its public shell: the product thesis and the architecture, written up from the working design documents. The code stays private. The ideas are the part worth sharing.</p>
+    <div class="stats" aria-label="Scale of the private workbench">
+      <div class="stat"><b>135</b><span>skills</span></div>
+      <div class="stat"><b>37</b><span>subagent roles</span></div>
+      <div class="stat"><b>2,100+</b><span>commits since Mar 2026</span></div>
+      <div class="stat"><b>70+</b><span>errata → checks</span></div>
+    </div>
+  </section>
+
+  <section id="thesis" class="block wrap">
+    <p class="kicker">THE THESIS</p>
+    <h2>Three failures, three guarantees</h2>
+    <p class="sub">Running one agent on one task is solved. Running dozens over months, on your own memory and files, is where things go wrong: you get pushed along, you learn nothing, and work scatters.</p>
+    <blockquote class="thesis">Asteria is a workbench for one person building with AI. Everything is a plain, searchable, traceable file. Any part can be swapped whole without shaking the rest. Before a decision is signed, the work pauses and the decision becomes something learned. Success is measured, not felt.</blockquote>
+    <div class="guar">
+      <div><b>Plain files</b><p>Markdown and config are the only durable form. Nothing lives in a store that the files could not rebuild.</p></div>
+      <div><b>Swappable parts</b><p>Dependencies point one way, paths live in one config, every contract ships with a check that can fail.</p></div>
+      <div><b>Pause before signing</b><p>A triage gate decides which decisions reach the human; the loop freezes there and the decision becomes a lesson.</p></div>
+    </div>
+  </section>
+
+  <section id="ideas" class="block wrap">
+    <p class="kicker">FIVE IDEAS</p>
+    <h2>What carries the design</h2>
+    <div class="ideas">
+      <div class="idea"><span class="n">01</span><h3>A human signs, by rule not by feel</h3><p>Which decisions reach the human is computed from three inputs: will it recur, how much does it touch, can it be undone. At most one learning side quest per session.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/04-human-in-the-loop.md">Human in the loop</a></div>
+      <div class="idea"><span class="n">02</span><h3>Tiered memory, proposals at the top</h3><p>Session memory is disposable, project memory is working state, persistent memory is canon. Nothing writes to canon directly: agents file proposals, the human approves.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md">Memory and errata</a></div>
+      <div class="idea"><span class="n">03</span><h3>Errata are checks, not advice</h3><p>A failure that repeats becomes an entry and a write-time check that blocks. A warning that cannot block is theater: blocking fires every time, advisory fires never.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md">Memory and errata</a></div>
+      <div class="idea"><span class="n">04</span><h3>Producer is never verifier</h3><p>The agent that wrote it does not grade it. Verification comes from a test run, a fresh context, another model or a human: a signal the producer did not have.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md">Simplicity and search</a></div>
+      <div class="idea"><span class="n">05</span><h3>Simplicity is a goal, never a criterion</h3><p>"Is this simple enough?" is banned at the gate. Gates ask only what a command can answer: diff size, exit codes, counts. Simplicity is read off afterwards.</p><a href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md">Simplicity and search</a></div>
+    </div>
+  </section>
+
+  <section id="map" class="block wrap">
+    <p class="kicker">MODULE MAP</p>
+    <h2>Four layers, one vocabulary</h2>
+    <p class="sub">The layer number says where something lives. The organ or port name says which one it is. Dependencies only point down.</p>
+    <div class="map">
+      <div class="layer l0"><span class="lv">L0</span><span class="nm">Constants</span><span class="it"><span class="chip">one config owns every path</span></span></div>
+      <div class="layer l1"><span class="lv">L1</span><span class="nm">Organs</span><span class="it"><span class="chip">memory</span><span class="chip">recall</span><span class="chip">immune</span><span class="chip">spine</span><span class="chip">structure</span></span></div>
+      <div class="layer l2"><span class="lv">L2</span><span class="nm">Ports</span><span class="it"><span class="chip">CODE</span><span class="chip">RESEARCH</span><span class="chip">KNOWLEDGE</span><span class="chip">ANALYSIS</span><span class="chip">STUDIO</span><span class="chip">INSPIRATION</span></span></div>
+      <div class="layer l3"><span class="lv">L3</span><span class="nm">Data</span><span class="it"><span class="chip">notes vault</span><span class="chip">session transcripts</span><span class="chip">work items</span><span class="chip">outputs</span></span></div>
+    </div>
+    <div class="laws">
+      <div><b>LAW 1</b>Dependencies only point downward.</div>
+      <div><b>LAW 2</b>Paths live only in config.</div>
+      <div><b>LAW 3</b>Every contract ships with a check.</div>
+      <div><b>LAW 4</b>Everything enters through the admission gate.</div>
+      <div><b>LAW 5</b>Interfaces are thin and late-bound.</div>
+      <div><b>LAW 6</b>Immunity is per organ.</div>
+    </div>
+  </section>
+
+  <section id="docs" class="block wrap">
+    <p class="kicker">DOCUMENTS</p>
+    <h2>Read the design</h2>
+    <p class="sub">Five short pages distilled from the design documents and the five expert reviews (product, architecture, adversarial critic, evaluation, human factors).</p>
+    <div class="docs">
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/01-thesis.md"><span class="num">01</span><span><h3>Thesis</h3><p>The problem, the three guarantees, measurable success, sunset conditions</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/02-architecture.md"><span class="num">02</span><span><h3>Architecture</h3><p>Four layers, five organs, six ports, six laws, six governance devices</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/03-memory-and-errata.md"><span class="num">03</span><span><h3>Memory and errata</h3><p>Tiered memory, the proposal model, retrieval grading, the recurrence probe</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/04-human-in-the-loop.md"><span class="num">04</span><span><h3>Human in the loop</h3><p>The triage gate, the pause protocol, trust per decision class, evidence first</p></span><span class="go">Read →</span></a>
+      <a class="doc" href="https://github.com/doriru89/asteria/blob/main/docs/05-simplicity-and-search.md"><span class="num">05</span><span><h3>Simplicity and search</h3><p>Lagging indicator, diverge/converge/decide, producer ≠ verifier, the rule budget</p></span><span class="go">Read →</span></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="stripes" aria-hidden="true"><i style="background:var(--a1)"></i><i style="background:var(--a2)"></i><i style="background:var(--a3)"></i><i style="background:var(--a4)"></i><i style="background:var(--a5)"></i></div>
+  <div class="foot__inner">
+    <div>
+      <p class="foot__k">WHO BUILT THIS</p>
+      <p class="foot__t">Austin Zheng</p>
+      <p class="foot__p">Product lead for AI tools inside real workflows. Asteria is the workbench I build everything else with. Designer and sole builder.</p>
+    </div>
+    <ul class="foot__links">
+      <li><a class="primary" href="https://doriru89.github.io/az-portfolio/">Portfolio</a></li>
+      <li><a href="https://github.com/doriru89/asteria">Repository</a></li>
+      <li><a href="https://www.linkedin.com/in/aozuozheng">LinkedIn</a></li>
+    </ul>
+  </div>
+  <div class="foot__base"><span>ASTERIA · PUBLIC SHELL</span><span>DESIGN DOCS, NOT CODE</span></div>
+</footer>
+</body>
+</html>
