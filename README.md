@@ -74,3 +74,7 @@ Six laws govern how parts connect: dependencies only point downward; paths live 
 ## Author
 
 Austin Zheng · [portfolio](https://doriru89.github.io/az-portfolio/) · [GitHub](https://github.com/doriru89)
+
+## Licence
+
+MIT. Use the ideas, the structure and the text freely; attribution is all that is asked.
